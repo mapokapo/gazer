@@ -57,7 +57,7 @@ export default class SignInScreen extends Component {
     .auth()
     .signInWithEmailAndPassword(credentials.email, credentials.pass)
     .then(() => {
-      this.props.navigation.navigate("App");
+      this.props.navigation.navigate("Auth");
     }).catch(error => {
       alert(error);
     });

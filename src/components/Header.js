@@ -7,17 +7,18 @@ export default class Header extends Component {
     super(props);
     this.state = {
       myWidth: 0,
-      currentUser: undefined
+      currentUser: undefined,
+      imageURL: undefined
     }
   }
 
-  componentDidMount() {
+  componentWillMount = async () => {
     if (this.props.currentUser) {
       firebase.auth().onAuthStateChanged(user => {
-        firebase.database().ref("users/" + user.uid).once("value").then(snapshot => {
-          alert(snapshot);
-          this.setState({ currentUser: snapshot });
-        });
+        if (user)
+          firebase.database().ref("users/" + user.uid).once("value").then(snapshot => {
+            this.setState({ currentUser: snapshot.val() });
+          });
       })
     }
   }
@@ -25,7 +26,7 @@ export default class Header extends Component {
   render() {
     return (
       <View style={{ backgroundColor: "#3498db", height: 60, display: "flex", flexDirection: "row", justifyContent: "flex-start", alignItems: "center", position: "relative" }}>
-        {this.state.currentUser === undefined ?
+        {(this.state.currentUser === undefined) ?
           (
             <Fragment>
               <Image style={{ height: 60, width: 60 }} source={require("../../media/logo_circle.png")} />
@@ -35,6 +36,7 @@ export default class Header extends Component {
           : 
           (
             <Fragment>
+              <Image style={{ height: 60, width: 60 }} source={{ uri: this.state.imageURL }} />
               <Text style={{ color: "#fff", fontSize: 24, fontFamily: "Montserrat-ExtraBold", marginLeft: 5 }}>{this.state.currentUser.displayName}</Text>
             </Fragment>
           )

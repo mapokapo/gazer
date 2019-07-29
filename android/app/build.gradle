@@ -195,6 +195,7 @@ dependencies {
     implementation "com.google.firebase:firebase-core:17.0.0"
     implementation "com.google.firebase:firebase-auth:17.0.0"
     implementation "com.google.firebase:firebase-database:17.0.0"
+    implementation "com.google.firebase:firebase-storage:17.0.0"
 
     if (enableHermes) {
       def hermesPath = "../../node_modules/hermesvm/android/";

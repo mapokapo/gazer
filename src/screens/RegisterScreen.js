@@ -4,22 +4,39 @@ import {
   Image,
   StyleSheet,
   Keyboard,
-  StatusBar
+  StatusBar,
+  TouchableOpacity
 } from "react-native";
 import RegisterForm from "../components/RegisterForm";
 import firebase from "react-native-firebase";
+import ImagePicker from 'react-native-image-picker';
+import uuid from 'uuid/v4';
+import RNFetchBlob from "react-native-fetch-blob";
+
+
+const options = {
+  title: 'Select Avatar',
+  storageOptions: {
+    skipBackup: true,
+    path: 'images',
+  },
+}
 
 export default class SignInScreen extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      logoSize: 200,
-      smallTextButtonMargin: 3
+      logoSize: 165,
+      smallTextButtonMargin: 3,
+      profileImageURL: "https://firebasestorage.googleapis.com/v0/b/uim3-8b4ac.appspot.com/o/avatar.png?alt=media&token=9916da50-2f36-4d89-983b-5f530bcd4ac1",
+      image: null
     };
   }
+
   static navigationOptions = {
     header: null
   };
+
   render() {
     return (
       <View style={styles.mainWrapper}>
@@ -29,10 +46,18 @@ export default class SignInScreen extends Component {
             styles.logoContainer
           }
         >
-          <Image
-            style={this.logoStyle()}
-            source={require("../../media/logo.png")}
-          />
+          <TouchableOpacity onPress={() => {
+            ImagePicker.showImagePicker(options, (response) => {
+              if (!response.didCancel && !response.error) {
+                this.setState({ image: response, profileImageURL: response.uri });
+              }
+            });
+          }}>
+            <Image
+              style={this.logoStyle()}
+              source={{ uri: this.state.profileImageURL }}
+            />
+          </TouchableOpacity>
         </View>
         <View style={styles.loginContainer}>
           <RegisterForm
@@ -55,15 +80,44 @@ export default class SignInScreen extends Component {
     .auth()
     .createUserWithEmailAndPassword(credentials.email, credentials.pass)
     .then(user => {
-      firebase.database().ref("users/" + user.user.uid).set({
-        displayName: credentials.displayName,
-        email: credentials.email,
-        password: credentials.pass
-      });
-      this.props.navigation.navigate("App");
-      return user.updateProfile({
-        displayName: credentials.name
-      });
+      const ext = this.state.profileImageURL.split('.').pop();
+      const filename = `${uuid()}.${ext}`;
+
+      const image = this.state.profileImageURL.uri;
+ 
+      const Blob = RNFetchBlob.polyfill.Blob;
+      const fs = RNFetchBlob.fs;
+      window.XMLHttpRequest = RNFetchBlob.polyfill.XMLHttpRequest;
+      window.Blob = Blob;
+
+      let uploadBlob = null,
+        mime = `image/${ext}`;
+
+      const imageRef = firebase.storage().ref("profileImages").child(filename);
+
+      fs.readFile(image, "base64")
+        .then((data) => {
+          return Blob.build(data, { type: `${mime};BASE64` })
+        })
+        .then((blob) => {
+          uploadBlob = blob
+          return imageRef.put(blob, { contentType: mime })
+        })
+        .then(() => {
+          uploadBlob.close()
+          return imageRef.getDownloadURL()
+        })
+        .then((url) => {
+          firebase.database().ref("users/" + user.user.uid).set({
+            displayName: credentials.name,
+            imageURL: url
+          }).then(() => {
+            this.props.navigation.navigate("Auth");
+          });
+        })
+        .catch((error) => {
+          console.log(error);
+        }) 
     }).catch(error => {
       alert(error);
     });
@@ -96,15 +150,16 @@ export default class SignInScreen extends Component {
   logoStyle() {
     return {
       width: this.state.logoSize,
-      height: this.state.logoSize
+      height: this.state.logoSize,
+      borderRadius: this.state.logoSize / 2
     };
   }
 
   keyboardToggle(flag) {
     if (flag) {
-      this.setState({ logoSize: 135, smallTextButtonMargin: 0 });
+      this.setState({ logoSize: 100, smallTextButtonMargin: 0 });
     } else {
-      this.setState({ logoSize: 200, smallTextButtonMargin: 3 });
+      this.setState({ logoSize: 165, smallTextButtonMargin: 3 });
     }
   }
 }
