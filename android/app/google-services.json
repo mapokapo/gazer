@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "897531715994",
+    "firebase_url": "https://uim3-8b4ac.firebaseio.com",
+    "project_id": "uim3-8b4ac",
+    "storage_bucket": "uim3-8b4ac.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:897531715994:android:663001af1505e1ff",
+        "android_client_info": {
+          "package_name": "com.uim3"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "897531715994-r3qu0irp1hbo10jppj5dg35t4pgmu3oa.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDz-ZhXP0WN95DuR1SVZ29epWZ0w7kf9FI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "897531715994-r3qu0irp1hbo10jppj5dg35t4pgmu3oa.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
