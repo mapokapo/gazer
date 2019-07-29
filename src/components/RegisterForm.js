@@ -28,7 +28,7 @@ export default class LoginForm extends Component {
             borderColor: this.state.warn.includes("name") ? "#e74c3c" : "#065471"
           }}
           autoCapitalize="words"
-          placeholder="Name and Surname"
+          placeholder="Username"
           returnKeyType="next"
           blurOnSubmit={false}
           onSubmitEditing={() => this.emailInput.focus()}
@@ -48,7 +48,7 @@ export default class LoginForm extends Component {
             borderColor: this.state.warn.includes("email") ? "#e74c3c" : "#065471"
           }}
           autoCapitalize="none"
-          placeholder="Username or Email"
+          placeholder="Email"
           keyboardType="email-address"
           returnKeyType="next"
           blurOnSubmit={false}

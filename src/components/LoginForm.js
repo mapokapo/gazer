@@ -27,7 +27,7 @@ export default class LoginForm extends Component {
             borderColor: this.state.warn.includes("email") ? "#e74c3c" : "#065471"
           }}
           autoCapitalize="none"
-          placeholder="Username or Email"
+          placeholder="Email"
           keyboardType="email-address"
           returnKeyType="next"
           blurOnSubmit={false}
@@ -72,7 +72,9 @@ export default class LoginForm extends Component {
             marginBottom: this.props.smallTextButtonMargin + 5
           }}
         >
-          <TouchableOpacity activeOpacity={0.5}>
+          <TouchableOpacity activeOpacity={0.5} onPress={() => {
+            this.props.resetPass();
+          }}>
             <Text
               style={{
                 ...styles.smallTextButton,

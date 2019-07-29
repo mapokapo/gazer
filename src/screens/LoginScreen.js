@@ -39,6 +39,9 @@ export default class SignInScreen extends Component {
             login={state => {
               this.handleLogin(state);
             }}
+            resetPass={() => {
+              this.resetPass();
+            }}
             noAccount={() => {
               this.props.navigation.navigate("Register");
             }}
@@ -50,6 +53,10 @@ export default class SignInScreen extends Component {
         </View>
       </View>
     );
+  }
+  
+  resetPass = () => {
+    
   }
 
   handleLogin = credentials => {
