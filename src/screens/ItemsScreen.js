@@ -1,36 +1,17 @@
 import React, { Component } from "react";
-import { View, Text, Dimensions, StyleSheet, FlatList } from "react-native";
+import { View, Text, Dimensions, StyleSheet, Animated, FlatList } from "react-native";
 import { Icon, SearchBar, ListItem } from "react-native-elements";
+import firebase from "react-native-firebase";
+import { NavigationEvents } from "react-navigation";
 
 export default class ItemsScreen extends Component {
   constructor(props) {
     super(props);
     this.state = {
       search: "",
-      list: [
-        {
-          imageURL: "../../media/logo1.png",
-          title: "Item 1",
-          location: "London, UK",
-          added_by: "John Doe",
-          added_on: "19-03-25"
-        },
-        {
-          imageURL: "../../media/logo1.png",
-          title: "Item 1",
-          location: "London, UK",
-          added_by: "John Doe",
-          added_on: "19-03-25"
-        },
-        {
-          imageURL: "../../media/logo1.png",
-          qrcodeURL: "../../media/qrcode.png",
-          title: "Item 1",
-          location: "London, UK",
-          added_by: "John Doe",
-          added_on: "19-03-25"
-        }
-      ]
+      list: [],
+      loading: true,
+      loadingListItemOpacity: new Animated.Value(0)
     }
   }
 
@@ -38,9 +19,47 @@ export default class ItemsScreen extends Component {
     header: null
   };
 
-  keyExtractor = (item, index) => index.toString();
+  runAnimation() {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(this.state.loadingListItemOpacity, {
+          toValue: 0.3,
+          duration: 500
+        }),
+        Animated.timing(this.state.loadingListItemOpacity, {
+          toValue: 0,
+          duration: 500
+        })
+      ])
+    ).start();
+  }
 
-  renderItem = ({ item }) => (
+  fetchItems = () => {
+    this.runAnimation();
+    firebase.database().ref("items").on("value", snapshot => {
+      if (!snapshot.val()) {
+        return
+      }
+      let itemArray = Object.values(snapshot.val());
+      this.setState({ list: itemArray }, () => {
+        Animated.timing(
+          this.state.loadingListItemOpacity
+        ).stop();
+        this.setState({ loading: false });
+      })
+    });
+  }
+
+  keyExtractor = (item, index) => index.toString()
+
+  renderShadowItem = ({ item }) =>
+    <Animated.View style={{ opacity: this.state.loadingListItemOpacity }}>
+      <ListItem
+        containerStyle={{ margin: 10, borderRadius: 5, padding: 15, backgroundColor: "#222"}}
+      />
+    </Animated.View>
+
+  renderItem = ({ item }) =>
     <ListItem
       onPress={() => {
         this.props.navigation.navigate("Item", { item });
@@ -50,24 +69,28 @@ export default class ItemsScreen extends Component {
       titleStyle={{ fontSize: 18 }}
       subtitle={
         <View>
-          <Text>Added by {item.added_by}</Text>
+          <Text style={{ color: "#444" }}>Added by {item.added_by}</Text>
         </View>
       }
       rightSubtitle={
         <View>
-          <View style={{ display: "flex", flexDirection: "row", justifyContent: "center", alignItems: "center" }}><Text>{item.added_on}</Text></View>
-          <View style={{ display: "flex", flexDirection: "row", justifyContent: "center", alignItems: "center" }}><Icon type="material" name="location-on" /><Text>{item.location}</Text></View>
+          <View style={{ display: "flex", flexDirection: "row", justifyContent: "flex-start", alignItems: "center" }}><Icon type="material" name="date-range" /><Text>{item.added_on}</Text></View>
+          <View style={{ display: "flex", flexDirection: "row", justifyContent: "flex-start", alignItems: "center" }}><Icon type="material" name="location-on" color="#E84B3D" /><Text>{item.location}</Text></View>
         </View>
       }
-      leftAvatar={{ source: require("../../media/logo1.png"), size: "medium" }}
+      leftAvatar={{ source: { uri: item.imageURL }, size: "medium" }}
     />
-  );
 
   render() {
     const { search } = this.state;
 
     return (
       <View style={{ backgroundColor: "#065471", flex: 1 }}>
+        <NavigationEvents
+          onDidFocus={() => {
+            this.fetchItems();
+          }}
+        />
         <SearchBar
           lightTheme round
           placeholder="Search Items..."
@@ -82,12 +105,23 @@ export default class ItemsScreen extends Component {
             alert("asd");
           }}
         />
-        <FlatList
-          style={{ margin: 3 }}
-          keyExtractor={this.keyExtractor}
-          data={this.state.list}
-          renderItem={this.renderItem}
-        />
+        {this.state.loading ?
+          <View>
+            <FlatList
+              style={{ margin: 3 }}
+              keyExtractor={this.keyExtractor}
+              data={[1, 2, 3]}
+              renderItem={this.renderShadowItem}
+            />
+          </View>
+          :
+          <FlatList
+            style={{ margin: 3 }}
+            keyExtractor={this.keyExtractor}
+            data={this.state.list}
+            renderItem={this.renderItem}
+          />
+        }
       </View>
     );
   }

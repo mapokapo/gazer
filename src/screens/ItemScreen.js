@@ -36,7 +36,7 @@ export default class ItemScreen extends Component {
     return (
       <View style={{ display: "flex", alignItems: "center", backgroundColor: "#065471", flex: 1, padding: 5 }}>
         <View>
-          <Image source={require("../../media/logo1.png")} style={{ width: 200, height: 200, borderRadius: 200 / 1, backgroundColor: "#fff" }} />
+          <Image source={{ uri: this.state.item.imageURL }} style={{ width: 200, height: 200, borderRadius: 200 / 1, backgroundColor: "#fff" }} />
         </View>
         <View>
           <Text style={{ fontSize: 24, fontWeight: "bold", color: "#fff", textAlign: "center" }}>{this.state.item.title}</Text>
@@ -45,7 +45,7 @@ export default class ItemScreen extends Component {
         <Text style={{ color: "#fff", textAlign: "center" }}>Added on {this.state.item.added_on}</Text>
         <View style={{ display: "flex", flexDirection: "row", alignItems: "center" }}><Icon type="material" name="location-on" color="#E84B3D" /><Text style={{ color: "#fff" }}>{this.state.item.location}</Text></View>
         <View>
-          <Image source={require("../../media/qrcode.png")} style={{ width: 125, height: 125, marginTop: 20 }} />
+          <Image source={require("../../media/qrcode.png")} style={{ width: 125, height: 125, marginTop: 20, borderRadius: 5 }} />
         </View>
         <View style={{ display: "flex", alignSelf: "flex-start", justifyContent: "center", alignItems: "center", flex: 1, width: "100%" }}>
           <Button color="#076c91" icon={
