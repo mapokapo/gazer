@@ -13,7 +13,7 @@ A Utility Inventory Browser Business Mobile App
 - [x] Complete Image upload on Register
 - [x] Implement Profile screen header
 - [ ] Configure email verification and add email verification screen
-- [ ] Implement forgotten password system
+- [x] Implement forgotten password system
 - [ ] Implement email-verified-only features for profiles
 - [ ] Add Item display, creation, edition, and deletion system
 - [ ] Implement search system for items
