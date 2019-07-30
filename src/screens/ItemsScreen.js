@@ -24,6 +24,7 @@ export default class ItemsScreen extends Component {
         },
         {
           imageURL: "../../media/logo1.png",
+          qrcodeURL: "../../media/qrcode.png",
           title: "Item 1",
           location: "London, UK",
           added_by: "John Doe",
@@ -41,6 +42,9 @@ export default class ItemsScreen extends Component {
 
   renderItem = ({ item }) => (
     <ListItem
+      onPress={() => {
+        this.props.navigation.navigate("Item", { item });
+      }}
       containerStyle={{ margin: 3, borderRadius: 5, padding: 10 }}
       title={item.title}
       titleStyle={{ fontSize: 18 }}
@@ -55,7 +59,7 @@ export default class ItemsScreen extends Component {
           <View style={{ display: "flex", flexDirection: "row", justifyContent: "center", alignItems: "center" }}><Icon type="material" name="location-on" /><Text>{item.location}</Text></View>
         </View>
       }
-      leftAvatar={{ source: require("../../media/logo1.png") }}
+      leftAvatar={{ source: require("../../media/logo1.png"), size: "medium" }}
     />
   );
 

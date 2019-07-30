@@ -13,6 +13,7 @@ import RegisterScreen from "./src/screens/RegisterScreen";
 import ItemsScreen from "./src/screens/ItemsScreen";
 import ProfileScreen from "./src/screens/ProfileScreen";
 import ResetPassScreen from "./src/screens/ResetPassScreen";
+import ItemScreen from "./src/screens/ItemScreen";
 
 import "./src/fixTimerBug";
 
@@ -22,7 +23,7 @@ const AuthLoadingStack = createStackNavigator({ Loading: { screen: LoadingScreen
 const AuthSwitch = createSwitchNavigator({ LoginRegister: { screen: LoginRegisterStack }, Loading: { screen: AuthLoadingStack } }, { initialRouteName: "Loading" })
 
 const HomeStack = createStackNavigator({Home: { screen: HomeScreen }});
-const ItemsStack = createStackNavigator({Items: { screen: ItemsScreen }});
+const ItemsStack = createStackNavigator({Items: { screen: ItemsScreen }, Item: { screen: ItemScreen } }, { initialRouteName: "Items" });
 const ProfileStack = createStackNavigator({Profile: { screen: ProfileScreen }});
 
 const AppTabs = createMaterialTopTabNavigator(
@@ -60,16 +61,16 @@ const AppTabs = createMaterialTopTabNavigator(
   },
   {
     initialRouteName: "Home",
-    activeColor: "#3fb0fc",
-    inactiveColor: "#222",
     barStyle: { backgroundColor: "#076c91" },
     tabBarPosition: "bottom",
     swipeEnabled: true,
     animationEnabled: true,
     tabBarOptions: {
+      activeTintColor: "#eee",
+      inactiveTintColor: "#222",
       showIcon: true,
       tabStyle: {
-        marginBottom: -10
+        marginBottom: -15
       }
     }
   }
