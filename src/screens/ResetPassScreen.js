@@ -1,30 +1,33 @@
-import React, { Component } from "react";
-import {
-  View,
-  Image,
-  StyleSheet,
-  Keyboard,
-  StatusBar
-} from "react-native";
-import LoginForm from "../components/LoginForm";
+import React, { Component } from 'react'
+import { Text, View, StyleSheet, Image, Keyboard } from 'react-native'
 import firebase from "react-native-firebase";
-import ResetPasswordScreen from "./ResetPassScreen";
+import ResetPassForm from "../components/ResetPassForm";
+import { Icon } from "react-native-elements";
 
-export default class SignInScreen extends Component {
+export default class ResetPassScreen extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      sent: false,
       logoSize: 200,
       smallTextButtonMargin: 3
-    };
+    }
   }
+
   static navigationOptions = {
-    header: null
+    headerStyle: {
+      backgroundColor: "#065471"
+    },
+    headerTintColor: "#fff"
   };
+
+  backButton = () => {
+    this.props.navigation.navigate("Login");
+  }
+
   render() {
     return (
       <View style={styles.mainWrapper}>
-        <StatusBar backgroundColor="#065471" barStyle="light-content" />
         <View
           style={
             styles.logoContainer
@@ -35,37 +38,27 @@ export default class SignInScreen extends Component {
             source={require("../../media/logo.png")}
           />
         </View>
-        <View style={styles.loginContainer}>
-          <LoginForm
-            login={state => {
-              this.handleLogin(state);
-            }}
-            resetPass={() => {
-              this.props.navigation.navigate("ResetPass");
-            }}
-            noAccount={() => {
-              this.props.navigation.navigate("Register");
-            }}
-            keyboardToggle={flag => {
-              this.keyboardToggle(flag);
-            }}
-            smallTextButtonMargin={this.state.smallTextButtonMargin}
-          />
-        </View>
+        <ResetPassForm
+         sent={this.state.sent}
+         smallTextButtonMargin={this.state.smallTextButtonMargin}
+         resetPass={email => {
+          this.resetPass(email);
+         }}
+         disableKeyboard={this.disableKeyboard}
+         />
       </View>
-    );
+    )
   }
 
-  handleLogin = credentials => {
-    firebase
-    .auth()
-    .signInWithEmailAndPassword(credentials.email, credentials.pass)
-    .then(() => {
-      this.props.navigation.navigate("App");
+  resetPass = email => {
+    firebase.auth().sendPasswordResetEmail(email).then(() => {
+      this.setState({ sent: true }, () => setTimeout(() => {
+        this.props.navigation.navigate("Auth");
+      }, 3000));
     }).catch(error => {
       alert(error);
     });
-  };
+  }
 
   componentDidMount() {
     this.keyboardDidShowListener = Keyboard.addListener(
@@ -78,9 +71,13 @@ export default class SignInScreen extends Component {
     );
   }
 
-  componentWillUnmount() {
+  disableKeyboard = () => {
     this.keyboardDidShowListener.remove();
     this.keyboardDidHideListener.remove();
+  }
+
+  componentWillUnmount() {
+    this.disableKeyboard();
   }
 
   _keyboardOpened() {

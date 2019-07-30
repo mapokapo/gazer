@@ -32,7 +32,10 @@ export default class SignInScreen extends Component {
   }
 
   static navigationOptions = {
-    header: null
+    headerStyle: {
+      backgroundColor: "#065471"
+    },
+    headerTintColor: "#fff"
   };
 
   render() {

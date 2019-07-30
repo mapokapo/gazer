@@ -1,19 +1,63 @@
 import React, { Component } from "react";
-import { View, Dimensions, StyleSheet } from "react-native";
-import { SearchBar } from 'react-native-elements';
-import { Icon } from "react-native-elements";
+import { View, Text, Dimensions, StyleSheet, FlatList } from "react-native";
+import { Icon, SearchBar, ListItem } from "react-native-elements";
 
 export default class ItemsScreen extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      search: ""
+      search: "",
+      list: [
+        {
+          imageURL: "../../media/logo1.png",
+          title: "Item 1",
+          location: "London, UK",
+          added_by: "John Doe",
+          added_on: "19-03-25"
+        },
+        {
+          imageURL: "../../media/logo1.png",
+          title: "Item 1",
+          location: "London, UK",
+          added_by: "John Doe",
+          added_on: "19-03-25"
+        },
+        {
+          imageURL: "../../media/logo1.png",
+          title: "Item 1",
+          location: "London, UK",
+          added_by: "John Doe",
+          added_on: "19-03-25"
+        }
+      ]
     }
   }
 
   static navigationOptions = {
     header: null
   };
+
+  keyExtractor = (item, index) => index.toString();
+
+  renderItem = ({ item }) => (
+    <ListItem
+      containerStyle={{ margin: 3, borderRadius: 5, padding: 10 }}
+      title={item.title}
+      titleStyle={{ fontSize: 18 }}
+      subtitle={
+        <View>
+          <Text>Added by {item.added_by}</Text>
+        </View>
+      }
+      rightSubtitle={
+        <View>
+          <View style={{ display: "flex", flexDirection: "row", justifyContent: "center", alignItems: "center" }}><Text>{item.added_on}</Text></View>
+          <View style={{ display: "flex", flexDirection: "row", justifyContent: "center", alignItems: "center" }}><Icon type="material" name="location-on" /><Text>{item.location}</Text></View>
+        </View>
+      }
+      leftAvatar={{ source: require("../../media/logo1.png") }}
+    />
+  );
 
   render() {
     const { search } = this.state;
@@ -29,10 +73,16 @@ export default class ItemsScreen extends Component {
           inputStyle={{ color: "#fff" }}
           placeholderTextColor="#fff"
           searchIcon={<Icon type="material" name="search" color="#fff" />}
-          containerStyle={{backgroundColor: "#3498db", borderBottomColor: "transparent", borderTopColor: "transparent" }}
+          containerStyle={{ backgroundColor: "#3498db", borderBottomColor: "transparent", borderTopColor: "transparent" }}
           onFocus={() => {
             alert("asd");
           }}
+        />
+        <FlatList
+          style={{ margin: 3 }}
+          keyExtractor={this.keyExtractor}
+          data={this.state.list}
+          renderItem={this.renderItem}
         />
       </View>
     );

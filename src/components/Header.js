@@ -25,7 +25,7 @@ export default class Header extends Component {
 
   render() {
     return (
-      <View style={{ backgroundColor: "#3498db", height: 60, display: "flex", flexDirection: "row", justifyContent: "flex-start", alignItems: "center", position: "relative" }}>
+      <View style={{ backgroundColor: "#3498db", height: 60, display: "flex", flexDirection: "row", justifyContent: "flex-start", alignItems: "center", position: "relative", paddingVertical: 33.25 }}>
         {(this.state.currentUser !== undefined && this.state.currentUser.imageURL !== undefined) ?
           (
             <Fragment>
