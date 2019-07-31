@@ -1,6 +1,7 @@
 # Gazer
 
-A Utility Inventory Browser Business Mobile App
+A Utility Inventory Manager (UIM) Business Mobile App
+*Gazer - a person who gazes, i.e. watches/browses*
 
 **To-Do:**
 
