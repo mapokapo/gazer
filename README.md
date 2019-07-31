@@ -21,3 +21,13 @@ A Utility Inventory Manager (UIM) Business Mobile App
 - [x] Implement search system for items
 - [ ] Implement Admin profiles
 - [ ] Polish app (broad)
+
+**Sample Images:**
+![Login Screen](media/Screenshots/LoginScreen.png)
+![Register Screen](media/Screenshots/RegisterScreen.png)
+![Reset Password Screen](media/Screenshots/ResetPassScreen.png)
+![Home Screen](media/Screenshots/HomeScreen.png)
+![Item List Screen](media/Screenshots/ItemsScreen.png)
+![Individual Item Screen](media/Screenshots/ItemScreen.png)
+![Add Item Screen](media/Screenshots/AddItemScreen.png)
+![Profile Screen](media/Screenshots/ProfileScreen.png)
