@@ -23,12 +23,11 @@ A Utility Inventory Manager (UIM) Business Mobile App
 - [ ] Polish app (broad)
 
 **Sample Images:**
-<img src="media/Screenshots/LoginScreen.png" alt="Login Screen" width="320" height="180">
-![Login Screen](media/Screenshots/LoginScreen.png)
-![Register Screen](media/Screenshots/RegisterScreen.png | width=100)
-![Reset Password Screen](media/Screenshots/ResetPassScreen.png | width=100)
-![Home Screen](media/Screenshots/HomeScreen.png | width=100)
-![Item List Screen](media/Screenshots/ItemsScreen.png | width=100)
-![Individual Item Screen](media/Screenshots/ItemScreen.png | width=100)
-![Add Item Screen](media/Screenshots/AddItemScreen.png | width=100)
-![Profile Screen](media/Screenshots/ProfileScreen.png | width=100)
+<img src="media/Screenshots/LoginScreen.png" alt="Login Screen" width="270" height="480">
+<img src="media/Screenshots/RegisterScreen.png" alt="Register Screen" width="270" height="480">
+<img src="media/Screenshots/ResetPassScreen.png" alt="Reset Password Screen" width="270" height="480">
+<img src="media/Screenshots/HomeScreen.png" alt="Home Screen" width="270" height="480">
+<img src="media/Screenshots/ItemsScreen.png" alt="Item List Screen" width="270" height="480">
+<img src="media/Screenshots/ItemScreen.png" alt="Individual Item Screen" width="270" height="480">
+<img src="media/Screenshots/AddItemScreen.png" alt="Add Item Screen" width="270" height="480">
+<img src="media/Screenshots/ProfileScreen.png" alt="Profile Screen" width="270" height="480">
