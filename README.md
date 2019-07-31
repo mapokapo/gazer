@@ -24,6 +24,7 @@ A Utility Inventory Manager (UIM) Business Mobile App
 
 # Sample Images
 
+
 <img src="media/Screenshots/LoginScreen.png" alt="Login Screen" width="270" height="480">
 <img src="media/Screenshots/RegisterScreen.png" alt="Register Screen" width="270" height="480">
 <img src="media/Screenshots/ResetPassScreen.png" alt="Reset Password Screen" width="270" height="480"><br/>
