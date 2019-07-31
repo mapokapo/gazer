@@ -46,11 +46,12 @@ export default class ItemsScreen extends Component {
         </View>
       }
       rightSubtitle={
-        <View>
-          <View style={{ display: "flex", flexDirection: "row", justifyContent: "flex-start", alignItems: "center" }}><Icon type="material" name="date-range" /><Text>{item.added_on}</Text></View>
-          <View style={{ display: "flex", flexDirection: "row", justifyContent: "flex-start", alignItems: "center" }}><Icon type="material" name="location-on" color="#E84B3D" /><Text>{item.location}</Text></View>
+        <View style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", justifyContent: "center" }}>
+          <View style={{display: "flex", flexDirection: "row", justifyContent: "flex-start", alignItems: "center"}}><Icon type="material" name="date-range" /><Text numberOfLines={1}>{item.added_on}</Text></View>
+          <View style={{display: "flex", flexDirection: "row", justifyContent: "flex-start", alignItems: "center"}}><Icon type="material" name="location-on" color="#E84B3D" /><Text style={{ overflow: "hidden" }}>{item.location}</Text></View>
         </View>
       }
+      rightContentContainerStyle={{ display: "flex", flex: 1, flexDirection: "row", justifyContent: "flex-start" }}
       leftAvatar={{ source: { uri: item.imageURL }, size: "medium" }}
     />
 
