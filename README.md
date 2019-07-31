@@ -16,6 +16,6 @@ A Utility Inventory Browser Business Mobile App
 - [x] Implement forgotten password system
 - [ ] Implement email-verified-only features for profiles
 - [ ] Add Item display, creation, edition, and deletion system
-- [ ] Implement search system for items
+- [x] Implement search system for items
 - [ ] Implement Admin profiles
 - [ ] Polish app (broad)
