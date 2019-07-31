@@ -1,34 +1,34 @@
-import React, { Component } from "react";
+import React, { Component } from 'react'
 import {
   View,
   Image,
   StyleSheet,
   Keyboard,
   StatusBar,
-  TouchableOpacity
-} from "react-native";
-import RegisterForm from "../components/RegisterForm";
+  TouchableOpacity } from 'react-native'
 import firebase from "react-native-firebase";
 import ImagePicker from 'react-native-image-picker';
-
+import uuid from "uuid/v4";
+import AddItemForm from "../components/AddItemForm";
 
 const options = {
-  title: 'Select Avatar',
+  title: 'Select Image',
   storageOptions: {
     skipBackup: true,
     path: 'images',
   },
 }
 
-export default class SignInScreen extends Component {
+export default class AddItemScreen extends Component {
   constructor(props) {
     super(props);
     this.state = {
       logoSize: 165,
       smallTextButtonMargin: 3,
-      profileImageURL: "https://firebasestorage.googleapis.com/v0/b/uim3-8b4ac.appspot.com/o/profileImages%2Favatar.png?alt=media&token=2eb1bf6b-bedf-4223-8124-ea340a6a6fc5",
-      image: null
-    };
+      itemImageURL: "https://firebasestorage.googleapis.com/v0/b/uim3-8b4ac.appspot.com/o/itemImages%2Fitem_box.png?alt=media&token=7d300e38-55b6-42b6-9e04-f842f16448f3",
+      image: null,
+      currentUser: null
+    }
   }
 
   static navigationOptions = {
@@ -36,83 +36,88 @@ export default class SignInScreen extends Component {
       backgroundColor: "#065471"
     },
     headerTintColor: "#fff",
-    title: "Register"
+    title: "Add an item"
   };
 
   render() {
     return (
       <View style={styles.mainWrapper}>
-        <StatusBar backgroundColor="#065471" barStyle="light-content" />
-        <View
-          style={
-            styles.logoContainer
-          }
-        >
+        <View style={styles.logoContainer}>
           <TouchableOpacity onPress={() => {
             ImagePicker.showImagePicker(options, (response) => {
               if (!response.didCancel && !response.error) {
-                this.setState({ image: response, profileImageURL: response.uri });
+                this.setState({ image: response, itemImageURL: response.uri });
               }
             });
           }}>
             <Image
               style={this.logoStyle()}
-              source={{ uri: this.state.profileImageURL }}
+              source={{ uri: this.state.itemImageURL }}
             />
           </TouchableOpacity>
         </View>
         <View>
-          <RegisterForm
-            register={state => {
-              this.handleRegister(state);
-            }}
-            hasAccount={() => {
-              this.props.navigation.navigate("Login");
-            }}
+          <AddItemForm
             keyboardToggle={this.keyboardToggle}
             smallTextButtonMargin={this.state.smallTextButtonMargin}
+            addItem={credentials => {
+              this.addItem(credentials);
+            }}
           />
         </View>
       </View>
-    );
+    )
   }
 
-  handleRegister = credentials => {
+  addItem = credentials => {
     firebase
     .auth()
-    .createUserWithEmailAndPassword(credentials.email, credentials.pass)
-    .then(async user => {
+    .onAuthStateChanged(async user => {
+      let currentUser;
+      let date = new Date();
+      let year = date.getFullYear().toString().substr(-2);
+      let month = (date.getMonth() + 1) < 10 ? "0" + (date.getMonth() + 1) : (date.getMonth() + 1);
+      let day = date.getDate() < 10 ? "0" + date.getDate() : date.getDate();
+      let formattedDate = year + "-" + month + "-" + day;
+      if (user) {
+        await firebase.database().ref("users/").child(user.uid).once("value", snapshot => {
+          currentUser = snapshot.val();
+          this.setState({ currentUser: snapshot.val() });
+        });
+      }
       if (this.state.image !== null) {
-        let ref = firebase.storage().ref("profileImages/").child(user.user.uid);
+        let ref = firebase.storage().ref("itemImages/").child(uuid());
         let ext = this.state.image.path.split(".")[1];
         ref.putFile(this.state.image.path, { contentType: `image/${ext}` })
         .then(item => {
-          firebase.database().ref("users/" + user.user.uid).set({
-            displayName: credentials.name,
-            imageURL: item.downloadURL
+          firebase.database().ref("items/" + uuid()).set({
+            added_by: currentUser.displayName,
+            added_on: formattedDate,
+            imageURL: item.downloadURL,
+            location: credentials.location,
+            searchQuery: credentials.title.toLowerCase(),
+            title: credentials.title
           }).then(() => {
-            this.props.navigation.navigate("Auth");
+            this.props.navigation.navigate("Items");
+          }).catch(error => {
+            alert(error);
           });
         }).catch(error => {
-          alert("1:" + error)
+          alert(error)
         });
       } else {
-        firebase.database().ref("users/" + user.user.uid).set({
-          displayName: credentials.name,
-          imageURL: this.state.profileImageURL
+        firebase.database().ref("items/" + uuid()).set({
+          added_by: currentUser.displayName,
+          added_on: formattedDate,
+          imageURL: this.state.itemImageURL,
+          location: credentials.location,
+          searchQuery: credentials.title.toLowerCase(),
+          title: credentials.title
         }).then(() => {
-          this.props.navigation.navigate("Auth");
+          this.props.navigation.navigate("Items");
         });
       }
-    }).catch(error => {
-      alert("2: " + error);
-    });
-  };
-
-  uploadImage = async (uri, name) => {
-    let ref = firebase.storage().ref("profileImages/").child(name);
-    let ext = uri.split(".")[1];
-    return ref.putFile(uri, { contentType: `image/${ext}`, name });
+    })
   }
 
   componentDidMount() {

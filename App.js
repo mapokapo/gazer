@@ -14,6 +14,7 @@ import ItemsScreen from "./src/screens/ItemsScreen";
 import ProfileScreen from "./src/screens/ProfileScreen";
 import ResetPassScreen from "./src/screens/ResetPassScreen";
 import ItemScreen from "./src/screens/ItemScreen";
+import AddItemScreen from "./src/screens/AddItemScreen";
 
 import "./src/fixTimerBug";
 
@@ -23,7 +24,7 @@ const AuthLoadingStack = createStackNavigator({ Loading: { screen: LoadingScreen
 const AuthSwitch = createSwitchNavigator({ LoginRegister: { screen: LoginRegisterStack }, Loading: { screen: AuthLoadingStack } }, { initialRouteName: "Loading" })
 
 const HomeStack = createStackNavigator({Home: { screen: HomeScreen }});
-const ItemsStack = createStackNavigator({Items: { screen: ItemsScreen }, Item: { screen: ItemScreen } }, { initialRouteName: "Items" });
+const ItemsStack = createStackNavigator({Items: { screen: ItemsScreen }, Item: { screen: ItemScreen }, AddItem: { screen: AddItemScreen } }, { initialRouteName: "Items" });
 const ProfileStack = createStackNavigator({Profile: { screen: ProfileScreen }});
 
 const AppTabs = createMaterialTopTabNavigator(

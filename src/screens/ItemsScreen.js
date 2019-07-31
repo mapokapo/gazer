@@ -1,6 +1,6 @@
 import React, { Component } from "react";
-import { View, Text, Dimensions, StyleSheet, Animated, FlatList } from "react-native";
-import { Icon, SearchBar, ListItem } from "react-native-elements";
+import { View, Text, Dimensions, StyleSheet, RefreshControl, FlatList } from "react-native";
+import { Icon, SearchBar, ListItem, Button } from "react-native-elements";
 import firebase from "react-native-firebase";
 import { NavigationEvents } from "react-navigation";
 
@@ -10,8 +10,7 @@ export default class ItemsScreen extends Component {
     this.state = {
       search: "",
       list: [],
-      loading: true,
-      loadingListItemOpacity: new Animated.Value(0)
+      loading: true
     }
   }
 
@@ -19,45 +18,19 @@ export default class ItemsScreen extends Component {
     header: null
   };
 
-  runAnimation() {
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(this.state.loadingListItemOpacity, {
-          toValue: 0.3,
-          duration: 500
-        }),
-        Animated.timing(this.state.loadingListItemOpacity, {
-          toValue: 0,
-          duration: 500
-        })
-      ])
-    ).start();
-  }
-
   fetchItems = () => {
-    this.runAnimation();
     firebase.database().ref("items").on("value", snapshot => {
       if (!snapshot.val()) {
         return
       }
       let itemArray = Object.values(snapshot.val());
       this.setState({ list: itemArray }, () => {
-        Animated.timing(
-          this.state.loadingListItemOpacity
-        ).stop();
         this.setState({ loading: false });
       })
     });
   }
 
   keyExtractor = (item, index) => index.toString()
-
-  renderShadowItem = ({ item }) =>
-    <Animated.View style={{ opacity: this.state.loadingListItemOpacity }}>
-      <ListItem
-        containerStyle={{ margin: 10, borderRadius: 5, padding: 15, backgroundColor: "#222"}}
-      />
-    </Animated.View>
 
   renderItem = ({ item }) =>
     <ListItem
@@ -101,33 +74,40 @@ export default class ItemsScreen extends Component {
           placeholderTextColor="#fff"
           searchIcon={<Icon type="material" name="search" color="#fff" />}
           containerStyle={{ backgroundColor: "#3498db", borderBottomColor: "transparent", borderTopColor: "transparent" }}
-          onFocus={() => {
-            alert("asd");
-          }}
         />
-        {this.state.loading ?
-          <View>
-            <FlatList
-              style={{ margin: 3 }}
-              keyExtractor={this.keyExtractor}
-              data={[1, 2, 3]}
-              renderItem={this.renderShadowItem}
+        <FlatList
+          style={{ margin: 3 }}
+          refreshControl={
+            <RefreshControl
+              refreshing={this.state.loading}
+              onRefresh={this.fetchItems}
             />
-          </View>
-          :
-          <FlatList
-            style={{ margin: 3 }}
-            keyExtractor={this.keyExtractor}
-            data={this.state.list}
-            renderItem={this.renderItem}
-          />
-        }
+          }
+          data={this.state.list}
+          extraData={this.state}
+          renderItem={this.renderItem}
+          keyExtractor={this.keyExtractor}
+        />
+        <Button
+          onPress={() => {
+            this.props.navigation.navigate("AddItem");
+          }}
+          buttonStyle={styles.FloatingActionButton}
+          icon={
+            <Icon type="material" name="add" color="#222" size={35} />
+          }
+        />
       </View>
     );
   }
 
   updateSearch = search => {
-    this.setState({ search });
+    this.setState({ search }, () => {
+      firebase.database().ref("/items/").orderByChild("searchQuery").startAt(search).endAt(search+"\uf8ff").on("value", snapshot => {
+        if (snapshot.val())
+          this.setState({ list: Object.values(snapshot.val()) });
+      });
+    });
   };
 
   _showMoreApp = () => {
@@ -176,6 +156,18 @@ const styles = StyleSheet.create({
     height: 40,
     marginTop: 40,
     borderRadius: 2,
-    backgroundColor: `#ff5722`
+    backgroundColor: `#ff5722`,
+  },
+  FloatingActionButton: {
+    width: 64,
+    height: 64,
+    borderRadius: 64 / 2,
+    backgroundColor: "#2ecc71",
+    position: "absolute",
+    right: 10,
+    bottom: 10,
+    zIndex: 500,
+    shadowColor: "#222",
+    elevation: 2
   }
 });
