@@ -20,9 +20,9 @@ A Utility Inventory Manager (UIM) Business Mobile App
 - [ ] Add Item display, creation, edition, and deletion system
 - [x] Implement search system for items
 - [ ] Implement Admin profiles
-- [ ] Polish app (broad)
+- [ ] Polish app (broad)  
 
-**Sample Images:**
+**Sample Images:**  
 <img src="media/Screenshots/LoginScreen.png" alt="Login Screen" width="270" height="480">
 <img src="media/Screenshots/RegisterScreen.png" alt="Register Screen" width="270" height="480">  
 <img src="media/Screenshots/ResetPassScreen.png" alt="Reset Password Screen" width="270" height="480">
