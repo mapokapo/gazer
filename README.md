@@ -22,7 +22,8 @@ A Utility Inventory Manager (UIM) Business Mobile App
 - [ ] Implement Admin profiles
 - [ ] Polish app (broad)  
 
-**Sample Images:**  
+# Sample Images
+
 <img src="media/Screenshots/LoginScreen.png" alt="Login Screen" width="270" height="480">
 <img src="media/Screenshots/RegisterScreen.png" alt="Register Screen" width="270" height="480">
 <img src="media/Screenshots/ResetPassScreen.png" alt="Reset Password Screen" width="270" height="480">  
@@ -31,3 +32,10 @@ A Utility Inventory Manager (UIM) Business Mobile App
 <img src="media/Screenshots/ProfileScreen.png" alt="Profile Screen" width="270" height="480">  
 <img src="media/Screenshots/ItemScreen.png" alt="Individual Item Screen" width="270" height="480">
 <img src="media/Screenshots/AddItemScreen.png" alt="Add Item Screen" width="270" height="480">  
+
+# How to run
+
+1. `npm install` - Install required dependencies
+2. `cd android && .\gradlew clean` - Rebuild Android Source
+3. `react-native link` - Link dependencies with React Native
+4. `react-native run-android` or `react-native run-ios` on iOS - Run the app on an Android Studio Emulator or a connected device with USB debugging enabled
