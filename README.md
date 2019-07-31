@@ -23,7 +23,8 @@ A Utility Inventory Manager (UIM) Business Mobile App
 - [ ] Polish app (broad)
 
 **Sample Images:**
-![Login Screen](media/Screenshots/LoginScreen.png){:height="50%" width="50%"}
+<img src="media/Screenshots/LoginScreen.png" alt="Login Screen" width="320" height="180">
+![Login Screen](media/Screenshots/LoginScreen.png)
 ![Register Screen](media/Screenshots/RegisterScreen.png | width=100)
 ![Reset Password Screen](media/Screenshots/ResetPassScreen.png | width=100)
 ![Home Screen](media/Screenshots/HomeScreen.png | width=100)
