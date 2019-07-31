@@ -28,6 +28,12 @@ target 'uim3' do
   pod 'glog', :podspec => '../node_modules/react-native/third-party-podspecs/glog.podspec'
   pod 'Folly', :podspec => '../node_modules/react-native/third-party-podspecs/Folly.podspec'
 
+  pod 'RNVectorIcons', :path => '../node_modules/react-native-vector-icons'
+
+
+  pod 'react-native-camera-kit', :path => '../node_modules/react-native-camera-kit'
+
+
   target 'uim3Tests' do
     inherit! :search_paths
     # Pods for testing

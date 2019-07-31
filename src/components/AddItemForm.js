@@ -2,9 +2,7 @@ import React, { Component } from "react";
 import {
   TextInput,
   View,
-  StyleSheet,
-  Text,
-  TouchableOpacity
+  StyleSheet
 } from "react-native";
 import { Button } from "react-native-elements";
 

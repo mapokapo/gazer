@@ -4,7 +4,6 @@ import {
   Image,
   StyleSheet,
   Keyboard,
-  StatusBar,
   TouchableOpacity } from 'react-native'
 import firebase from "react-native-firebase";
 import ImagePicker from 'react-native-image-picker';

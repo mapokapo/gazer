@@ -1,8 +1,7 @@
 import React, { Component } from 'react'
-import { Text, View, StyleSheet, Image, Keyboard } from 'react-native'
+import { View, StyleSheet, Image, Keyboard } from 'react-native'
 import firebase from "react-native-firebase";
 import ResetPassForm from "../components/ResetPassForm";
-import { Icon } from "react-native-elements";
 
 export default class ResetPassScreen extends Component {
   constructor(props) {

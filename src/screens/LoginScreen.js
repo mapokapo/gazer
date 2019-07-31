@@ -8,7 +8,6 @@ import {
 } from "react-native";
 import LoginForm from "../components/LoginForm";
 import firebase from "react-native-firebase";
-import ResetPasswordScreen from "./ResetPassScreen";
 
 export default class SignInScreen extends Component {
   constructor(props) {
