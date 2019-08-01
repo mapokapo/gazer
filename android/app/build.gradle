@@ -131,6 +131,7 @@ android {
         applicationId "com.uim3"
         multiDexEnabled true
         minSdkVersion rootProject.ext.minSdkVersion
+        missingDimensionStrategy 'react-native-camera', 'mlkit'
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
         versionName "1.0"
@@ -210,6 +211,7 @@ dependencies {
     implementation "com.google.firebase:firebase-auth:17.0.0"
     implementation "com.google.firebase:firebase-database:17.0.0"
     implementation "com.google.firebase:firebase-storage:17.0.0"
+    implementation 'com.google.firebase:firebase-ml-vision:22.0.0'
     implementation 'com.android.support:multidex:1.0.3'
 
     if (enableHermes) {

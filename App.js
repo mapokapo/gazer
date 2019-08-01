@@ -1,9 +1,7 @@
 import React from "react";
 import { View } from "react-native";
-import { createStackNavigator, createAppContainer, createSwitchNavigator } from "react-navigation";
-import { createMaterialTopTabNavigator } from "react-navigation";
+import { createStackNavigator, createAppContainer, createSwitchNavigator, createMaterialTopTabNavigator } from "react-navigation";
 import createAnimatedSwitchNavigator from "react-navigation-animated-switch";
-import { Transition } from "react-native-reanimated";
 import { Icon } from "react-native-elements";
 
 import HomeScreen from "./src/screens/HomeScreen";
