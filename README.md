@@ -19,6 +19,7 @@ A Utility Inventory Manager (UIM) Business Mobile App
 - [ ] Implement email-verified-only features for profiles
 - [ ] Add Item display, creation, edition, and deletion system
 - [x] Implement search system for items
+- [ ] Complete QR Code Scanner for items
 - [ ] Implement Admin profiles
 - [ ] Polish app (broad)  
 
@@ -32,3 +33,5 @@ A Utility Inventory Manager (UIM) Business Mobile App
 2. `cd android && .\gradlew clean` - Rebuild Android Source
 3. `react-native link` - Link dependencies with React Native
 4. `react-native run-android` or `react-native run-ios` on iOS - Run the app on an Android Studio Emulator or a connected device with USB debugging enabled
+
+One liner (Windows): `npm i; cd android; .\gradlew clean; cd ..; react-native link; react-native run-android`/run-ios
