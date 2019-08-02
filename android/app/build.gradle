@@ -131,7 +131,7 @@ android {
         applicationId "com.uim3"
         multiDexEnabled true
         minSdkVersion rootProject.ext.minSdkVersion
-        missingDimensionStrategy 'react-native-camera', 'mlkit'
+        missingDimensionStrategy 'react-native-camera', 'general'
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
         versionName "1.0"

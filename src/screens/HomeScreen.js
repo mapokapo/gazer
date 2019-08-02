@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import { View, StyleSheet, Dimensions, Animated, Text } from "react-native";
 import Header from "../components/Header";
 import { RNCamera } from "react-native-camera";
+import firebase from "react-native-firebase";
 
 export default class HomeScreen extends Component {
   constructor(props) {
@@ -40,21 +41,21 @@ export default class HomeScreen extends Component {
             }
           )
         ]
-      ),
-      {
-        iterations: 5
-      }
+      )
     ).start();
   }
 
   handleQRScan = data => {
-    alert(data.data);
+    firebase.database().ref("items/").child(data.data).once("value", snapshot => {
+      if (snapshot.val())
+        this.props.navigation.navigate("Item", { item: snapshot.val() })
+    });
   }
 
   render() {
     return (
       <View style={styles.container}>
-        <View style={{ width: 375, height: 475, borderRadius: 15, overflow: "hidden" }}>
+        <View style={{ width: Dimensions.get("window").width/100*80, height: Dimensions.get("window").height/100*65, borderRadius: 15, overflow: "hidden", borderColor: "#f39c12", borderWidth: 1, borderStyle: "dashed" }}>
           <RNCamera
             ref={ref => {
               this.camera = ref;
@@ -70,7 +71,7 @@ export default class HomeScreen extends Component {
         </View>
         {this.state.renderBox &&
           <Animated.View style={{ ...styles.cameraBox, opacity: this.state.cameraBoxOpacity }}>
-            <View style={{ width: 200, height: 200, borderColor: "#f39c12", borderWidth: 1, borderStyle: "solid", backgroundColor: "transparent" }}></View>
+            <View style={{ width: 150, height: 150, borderColor: "#f39c12", borderWidth: 1, borderStyle: "solid", backgroundColor: "transparent" }}></View>
             <Text style={{ textAlign: "center", color: "#fff", opacity: 0.5, fontSize: 18 }}>Scan QR Code</Text>
           </Animated.View>
         }
