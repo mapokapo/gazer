@@ -25,6 +25,7 @@ export default class AddItemScreen extends Component {
       logoSize: 165,
       smallTextButtonMargin: 3,
       itemImageURL: "https://firebasestorage.googleapis.com/v0/b/uim3-8b4ac.appspot.com/o/itemImages%2Fitem_box.png?alt=media&token=7d300e38-55b6-42b6-9e04-f842f16448f3",
+      QRCodeURL: "",
       image: null,
       currentUser: null
     }
@@ -84,15 +85,18 @@ export default class AddItemScreen extends Component {
           this.setState({ currentUser: snapshot.val() });
         });
       }
+      let itemID = uuid();
       if (this.state.image !== null) {
-        let ref = firebase.storage().ref("itemImages/").child(uuid());
+        let ref = firebase.storage().ref("itemImages/").child(itemID);
         let ext = this.state.image.path.split(".")[1];
         ref.putFile(this.state.image.path, { contentType: `image/${ext}` })
         .then(item => {
-          firebase.database().ref("items/" + uuid()).set({
+
+          firebase.database().ref("items/" + itemID).set({
             added_by: currentUser.displayName,
             added_on: formattedDate,
             imageURL: item.downloadURL,
+            QRCodeURL: itemID,
             location: credentials.location,
             searchQuery: credentials.title.toLowerCase(),
             title: credentials.title
@@ -105,10 +109,11 @@ export default class AddItemScreen extends Component {
           alert(error)
         });
       } else {
-        firebase.database().ref("items/" + uuid()).set({
+        firebase.database().ref("items/" +itemID).set({
           added_by: currentUser.displayName,
           added_on: formattedDate,
           imageURL: this.state.itemImageURL,
+          QRCodeURL: itemID,
           location: credentials.location,
           searchQuery: credentials.title.toLowerCase(),
           title: credentials.title

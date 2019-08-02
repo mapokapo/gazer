@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
-import { Text, View, Image } from 'react-native';
+import { Text, View, Image, Alert } from 'react-native';
 import { Icon, Button } from "react-native-elements";
+import firebase from 'react-native-firebase';
+import QRCode from 'react-native-qrcode';
 
 export default class ItemScreen extends Component {
   constructor(props) {
@@ -23,10 +25,36 @@ export default class ItemScreen extends Component {
         <View style={{ display: "flex", justifyContent: "center", alignItems: "center", flexDirection: "row" }}>
           <Button icon={
             <Icon type="material" name="edit" color="#3fb0fc" />
-          } buttonStyle={{ backgroundColor: "transparent", marginHorizontal: 10 }} />
+          } buttonStyle={{ backgroundColor: "transparent", marginHorizontal: 10 }}
+            onPress={() => {
+              this.editItem()
+            }}
+          />
           <Button icon={
             <Icon type="material" name="delete" color="#e74c3c" />
-          } buttonStyle={{ backgroundColor: "transparent", marginRight: 10 }} />
+          } buttonStyle={{ backgroundColor: "transparent", marginRight: 10 }}
+            onPress={() => {
+              let item = navigation.getParam("item");
+              Alert.alert(
+                "Confirm Deletion",
+                "Are you sure you want to delete this item?",
+                [
+                  { text: "Cancel", style: "cancel" },
+                  { text: "Yes", onPress: () => {
+                    firebase.database().ref("items/").child(item.QRCodeURL).remove().then(() => {
+                      firebase.storage().ref("itemImages/").child(item.QRCodeURL).delete().then(() => {
+                        navigation.navigate("Items");
+                      }).catch(() => {
+                        navigation.navigate("Items");
+                      });
+                    }).catch(error => {
+                      alert(error);
+                    });
+                  } },
+                ]
+              )
+            }}
+          />
         </View>
       )
     }
@@ -44,8 +72,13 @@ export default class ItemScreen extends Component {
         </View>
         <Text style={{ color: "#fff", textAlign: "center" }}>Added on {this.state.item.added_on}</Text>
         <View style={{ display: "flex", flexDirection: "row", alignItems: "center" }}><Icon type="material" name="location-on" color="#E84B3D" /><Text style={{ color: "#fff" }}>{this.state.item.location}</Text></View>
-        <View>
-          <Image source={require("../../media/qrcode.png")} style={{ width: 125, height: 125, marginTop: 20, borderRadius: 5 }} />
+        <View style={{ width: 125, height: 125, overflow: "hidden", marginTop: 20 }}>
+          <QRCode
+            value={this.state.item.QRCodeURL}
+            size={350}
+            bgColor="#fff"
+            fgColor="#000"
+          />
         </View>
         <View style={{ display: "flex", alignSelf: "flex-start", justifyContent: "center", alignItems: "center", flex: 1, width: "100%" }}>
           <Button color="#076c91" icon={
