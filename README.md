@@ -19,6 +19,7 @@ A Utility Inventory Manager (UIM) Business Mobile App
 - [ ] Implement email-verified-only features for profiles
 - [ ] Add Item display, creation, edition, and deletion system
 - [x] Implement search system for items
+- [ ] Complete QR Code Scanner for items
 - [ ] Implement Admin profiles
 - [ ] Polish app (broad)  
 
