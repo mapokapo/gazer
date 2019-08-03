@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { View, StyleSheet, Dimensions, Animated, Text } from "react-native";
+import { View, StyleSheet, Dimensions, Animated, Text, Vibration } from "react-native";
 import Header from "../components/Header";
 import { RNCamera } from "react-native-camera";
 import firebase from "react-native-firebase";
@@ -10,7 +10,8 @@ export default class HomeScreen extends Component {
     this.state = {
       screenWidth: 0,
       cameraBoxOpacity: new Animated.Value(1),
-      renderBox: false
+      renderBox: false,
+      lastScan: ""
     };
   }
 
@@ -46,10 +47,15 @@ export default class HomeScreen extends Component {
   }
 
   handleQRScan = data => {
-    firebase.database().ref("items/").child(data.data).once("value", snapshot => {
-      if (snapshot.val())
-        this.props.navigation.navigate("Item", { item: snapshot.val() })
-    });
+    if (data.data !== this.state.lastScan) {
+      this.setState({ lastScan: data.data }, () => {
+        Vibration.vibrate(500);
+        firebase.database().ref("items/").child(data.data).once("value", snapshot => {
+          if (snapshot.val())
+            this.props.navigation.navigate("Loading", { data: snapshot.val() });
+        });
+      });
+    }
   }
 
   render() {

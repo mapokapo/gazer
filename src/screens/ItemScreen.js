@@ -64,7 +64,7 @@ export default class ItemScreen extends Component {
     return (
       <View style={{ display: "flex", alignItems: "center", backgroundColor: "#065471", flex: 1, padding: 5 }}>
         <View>
-          <Image source={{ uri: this.state.item.imageURL }} style={{ width: 200, height: 200, borderRadius: 200 / 1, backgroundColor: "#fff" }} />
+          <Image source={{ uri: this.state.item.imageURL }} style={{ width: 200, height: 200, borderRadius: 200 / 1, backgroundColor: "#065471" }} />
         </View>
         <View>
           <Text style={{ fontSize: 24, fontWeight: "bold", color: "#fff", textAlign: "center" }}>{this.state.item.title}</Text>
@@ -72,10 +72,10 @@ export default class ItemScreen extends Component {
         </View>
         <Text style={{ color: "#fff", textAlign: "center" }}>Added on {this.state.item.added_on}</Text>
         <View style={{ display: "flex", flexDirection: "row", alignItems: "center" }}><Icon type="material" name="location-on" color="#E84B3D" /><Text style={{ color: "#fff" }}>{this.state.item.location}</Text></View>
-        <View style={{ width: 125, height: 125, overflow: "hidden", marginTop: 20 }}>
+        <View style={{ width: 115, height: 115, overflow: "hidden", marginTop: 10 }}>
           <QRCode
             value={this.state.item.QRCodeURL}
-            size={350}
+            size={340}
             bgColor="#fff"
             fgColor="#000"
           />

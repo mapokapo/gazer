@@ -13,10 +13,11 @@ import ProfileScreen from "./src/screens/ProfileScreen";
 import ResetPassScreen from "./src/screens/ResetPassScreen";
 import ItemScreen from "./src/screens/ItemScreen";
 import AddItemScreen from "./src/screens/AddItemScreen";
+import EmailVerificationScreen from "./src/screens/EmailVerification";
 
 import "./src/fixTimerBug";
 
-const LoginRegisterStack = createStackNavigator({ Login: { screen: LoginScreen }, Register: { screen: RegisterScreen }, ResetPass: { screen: ResetPassScreen }});
+const LoginRegisterStack = createStackNavigator({ Login: { screen: LoginScreen }, Register: { screen: RegisterScreen }, ResetPass: { screen: ResetPassScreen }, EmailVerification: { screen: EmailVerificationScreen }}, { initialRouteName: "Login" });
 const AuthLoadingStack = createStackNavigator({ Loading: { screen: LoadingScreen } });
 
 const AuthSwitch = createSwitchNavigator({ LoginRegister: { screen: LoginRegisterStack }, Loading: { screen: AuthLoadingStack } }, { initialRouteName: "Loading" })

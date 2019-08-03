@@ -24,7 +24,7 @@ export default class LoginForm extends Component {
         <TextInput
           style={{
             ...styles.textInput,
-            marginVertical: this.props.smallTextButtonMargin + 3,
+            marginVertical: this.props.smallTextButtonMargin + 1,
             borderColor: this.state.warn.includes("name") ? "#e74c3c" : "#065471"
           }}
           autoCapitalize="words"
@@ -44,7 +44,7 @@ export default class LoginForm extends Component {
         <TextInput
           style={{
             ...styles.textInput,
-            marginVertical: this.props.smallTextButtonMargin + 3,
+            marginVertical: this.props.smallTextButtonMargin + 1,
             borderColor: this.state.warn.includes("email") ? "#e74c3c" : "#065471"
           }}
           autoCapitalize="none"
@@ -66,7 +66,7 @@ export default class LoginForm extends Component {
         <TextInput
           style={{
             ...styles.textInput,
-            marginVertical: this.props.smallTextButtonMargin + 3,
+            marginVertical: this.props.smallTextButtonMargin + 1,
             borderColor: this.state.warn.includes("pass") ? "#e74c3c" : "#065471"
           }}
           autoCapitalize="none"

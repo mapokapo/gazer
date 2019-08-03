@@ -91,7 +91,7 @@ export default class SignInScreen extends Component {
             displayName: credentials.name,
             imageURL: item.downloadURL
           }).then(() => {
-            this.props.navigation.navigate("Auth");
+            this.props.navigation.navigate("EmailVerification", { data: { imageURL: item.downloadURL, email: user.user.email } });
           });
         }).catch(error => {
           alert("1:" + error)
@@ -101,7 +101,7 @@ export default class SignInScreen extends Component {
           displayName: credentials.name,
           imageURL: this.state.profileImageURL
         }).then(() => {
-          this.props.navigation.navigate("Auth");
+          this.props.navigation.navigate("EmailVerification", { data: { imageURL: this.state.profileImageURL, email: user.user.email } });
         });
       }
     }).catch(error => {
@@ -149,7 +149,7 @@ export default class SignInScreen extends Component {
 
   keyboardToggle(flag) {
     if (flag) {
-      this.setState({ logoSize: 100, smallTextButtonMargin: 0 });
+      this.setState({ logoSize: 80, smallTextButtonMargin: 0 });
     } else {
       this.setState({ logoSize: 165, smallTextButtonMargin: 3 });
     }

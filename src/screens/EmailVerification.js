@@ -1,0 +1,67 @@
+import React, { Component } from "react";
+import {
+  View,
+  Image,
+  StyleSheet,
+  StatusBar,
+  Text
+} from "react-native";
+import firebase from "react-native-firebase";
+
+export default class SignInScreen extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      logoSize: 165,
+      data: ""
+    };
+  }
+
+  static navigationOptions = {
+    header: null
+  };
+
+  componentDidMount() {
+    this.setState({ data: this.props.navigation.getParam("data") }, () => {
+      firebase.sendEmailVerification(this.state.data.email).then(() => {
+        setTimeout(() => {
+          this.props.navigation.navigate("Auth");
+        }, 5000);
+      });
+    });
+  }
+
+  render() {
+    return (
+      <View style={styles.mainWrapper}>
+        <StatusBar backgroundColor="#065471" barStyle="light-content" />
+        <View
+          style={
+            styles.logoContainer
+          }
+        >
+          <Image
+            style={{ width: 200, height: 200, borderRadius: 200 / 2 }}
+            source={{ uri: this.state.data.imageURL}}
+          />
+        </View>
+        <View>
+          <Text style={{ color: "#fff" }}>A Verification Email has been sent to <Text style={{ color: "#3498db" }}>{this.state.data.email}</Text></Text>
+          <Text style={{ color: "#fff" }}>You will be redirected soon</Text>
+        </View>
+      </View>
+    );
+  }
+}
+
+const styles = StyleSheet.create({
+  mainWrapper: {
+    backgroundColor: "#065471",
+    flex: 1
+  },
+  logoContainer: {
+    alignItems: "center",
+    flexGrow: 1,
+    justifyContent: "center"
+  }
+});
