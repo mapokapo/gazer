@@ -24,7 +24,7 @@ const AuthSwitch = createSwitchNavigator({ LoginRegister: { screen: LoginRegiste
 
 const HomeStack = createStackNavigator({Home: { screen: HomeScreen }});
 const ItemsStack = createStackNavigator({Items: { screen: ItemsScreen }, Item: { screen: ItemScreen }, AddItem: { screen: AddItemScreen } }, { initialRouteName: "Items" });
-const ProfileStack = createStackNavigator({Profile: { screen: ProfileScreen }});
+const ProfileStack = createStackNavigator({Profile: { screen: ProfileScreen }, ResetPassProfile: { screen: ResetPassScreen }}, { initialRouteName: "Profile" });
 
 const AppTabs = createMaterialTopTabNavigator(
   {

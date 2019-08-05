@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { View, Text, Dimensions, StyleSheet, RefreshControl, FlatList } from "react-native";
+import { View, Text, StyleSheet, RefreshControl, FlatList } from "react-native";
 import { Icon, SearchBar, ListItem, Button } from "react-native-elements";
 import firebase from "react-native-firebase";
 import { NavigationEvents } from "react-navigation";
@@ -117,29 +117,12 @@ export default class ItemsScreen extends Component {
   };
 }
 
-const DEVICE_WIDTH = Dimensions.get(`window`).width;
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: "flex-start",
     alignItems: "center",
     backgroundColor: "#f5fcff"
-  },
-  status: {
-    zIndex: 10,
-    elevation: 2,
-    width: DEVICE_WIDTH,
-    height: 21,
-    backgroundColor: "#0097a7"
-  },
-  header: {
-    justifyContent: "center",
-    alignItems: "center",
-    width: DEVICE_WIDTH,
-    height: 56,
-    marginBottom: 6,
-    backgroundColor: "#00bcd4"
   },
   label: {
     flexGrow: 1,

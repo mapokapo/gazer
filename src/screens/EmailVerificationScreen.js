@@ -23,12 +23,11 @@ export default class EmailVerificationScreen extends Component {
 
   componentDidMount = () => {
     let self = this;
-    self.setState({ data: self.props.navigation.getParam("data") }, () => {
-      firebase.auth().currentUser.sendEmailVerification().then(() => {
-        setTimeout(() => {
-          self.props.navigation.navigate("Loading");
-        }, 6000);
-      });
+    self.setState({ data: self.props.navigation.getParam("data") });
+    firebase.auth().currentUser.sendEmailVerification().then(() => {
+      setTimeout(() => {
+        self.props.navigation.navigate("Loading");
+      }, 5000);
     });
   }
 

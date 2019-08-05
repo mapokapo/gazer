@@ -20,10 +20,6 @@ export default class ResetPassScreen extends Component {
     headerTintColor: "#fff"
   };
 
-  backButton = () => {
-    this.props.navigation.navigate("Login");
-  }
-
   render() {
     return (
       <View style={styles.mainWrapper}>
