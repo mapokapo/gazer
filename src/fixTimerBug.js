@@ -5,6 +5,12 @@
 ////// See: https://github.com/firebase/firebase-js-sdk/issues/97 ///////////
 /////////////////////////////////////////////////////////////////////////////
 import { Platform, InteractionManager } from 'react-native';
+import { YellowBox } from "react-native"
+
+YellowBox.ignoreWarnings([
+  "Warning: ViewPagerAndroid has been extracted",
+])
+
 const _setTimeout = global.setTimeout;
 const _clearTimeout = global.clearTimeout;
 const MAX_TIMER_DURATION_MS = 60 * 1000;

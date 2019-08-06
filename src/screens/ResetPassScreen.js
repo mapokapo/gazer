@@ -47,9 +47,7 @@ export default class ResetPassScreen extends Component {
 
   resetPass = email => {
     firebase.auth().sendPasswordResetEmail(email).then(() => {
-      this.setState({ sent: true }, () => setTimeout(() => {
-        this.props.navigation.navigate("Auth");
-      }, 3000));
+      this.setState({ sent: true });
     }).catch(error => {
       alert(error);
     });

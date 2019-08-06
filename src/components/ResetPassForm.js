@@ -23,8 +23,7 @@ export default class ResetPassForm extends Component {
         {!(this.props.sent) ?
           (<View style={{ margin: 15 }}><Text style={{ color: "#fff", fontSize: 20, textAlign: "center" }}>In order to reset your password, we need your email adress first.</Text></View>)
           :
-          (<View style={{ margin: 15 }}><Text style={{ color: "#2ecc71", fontSize: 20, textAlign: "center" }}>Password reset email has been sent to <Text style={{ color: "#3498db" }}>{this.state.email}</Text></Text>
-            <Text style={{ color: "#fff", fontSize: 20, textAlign: "center" }}>You will be redirected to the login screen shortly.</Text></View>)}
+          (<View style={{ margin: 15 }}><Text style={{ color: "#2ecc71", fontSize: 20, textAlign: "center" }}>Password reset email has been sent to <Text style={{ color: "#3498db" }}>{this.state.email}</Text></Text></View>)}
         {!(this.props.sent) && <TextInput
           style={{
             ...styles.textInput,

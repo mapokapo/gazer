@@ -1,9 +1,18 @@
 import React, { Component } from "react";
-import { View, Text, FlatList, Alert, ToastAndroid, Dimensions, StyleSheet } from "react-native";
+import { View, Text, FlatList, Alert, ToastAndroid, Dimensions, StyleSheet, RefreshControl } from "react-native";
 import { ListItem, Overlay, Button, Input, Icon } from "react-native-elements";
 import firebase from "react-native-firebase";
 import Header from "../components/Header";
 import { NavigationEvents } from "react-navigation";
+import ImagePicker from 'react-native-image-picker';
+
+const options = {
+  title: 'Select Avatar',
+  storageOptions: {
+    skipBackup: true,
+    path: 'images',
+  },
+}
 
 export class ProfileScreen extends Component {
   constructor(props) {
@@ -13,12 +22,41 @@ export class ProfileScreen extends Component {
       userData: "",
       inputName: "",
       modalVisible: false,
+      loading: true,
       list: [
         {
-          title: <Text style={{ textAlign: "center", fontSize: 20, color: "#c0392b"  }}>Reset Password</Text>,
-          mustBeVerified: false,
+          title: <Text style={{ textAlign: "center", fontSize: 20 }}>Change Name</Text>,
+          mustBeVerified: true,
           action: () => {
-            this.props.navigation.navigate("ResetPassProfile");
+            this.setState({ modalVisible: true })
+          }
+        },
+        {
+          title: <Text style={{ textAlign: "center", fontSize: 20 }}>Change Profile Image</Text>,
+          mustBeVerified: true,
+          action: () => {
+            ImagePicker.showImagePicker(options, (response) => {
+              if (!response.didCancel && !response.error) {
+                this.refreshState();
+                let ref = firebase.storage().ref("profileImages/").child(this.state.user.uid);
+                let ext = response.path.split(".")[1];
+                ref.putFile(response.path, { contentType: `image/${ext}` })
+                .then(item => {
+                  firebase.database().ref("users/" + this.state.user.uid).set({
+                    displayName: this.state.userData.displayName,
+                    imageURL: item.downloadURL
+                  }).then(() => {
+                    ToastAndroid.show(
+                      "Profile Image changed",
+                      ToastAndroid.SHORT,
+                      ToastAndroid.BOTTOM
+                    );
+                  });
+                }).catch(error => {
+                  alert(error)
+                });
+              }
+            });
           }
         },
         {
@@ -35,21 +73,7 @@ export class ProfileScreen extends Component {
           }
         },
         {
-          title: <Text style={{ textAlign: "center", fontSize: 20 }}>Change Name</Text>,
-          mustBeVerified: true,
-          action: () => {
-            this.setState({ modalVisible: true })
-          }
-        },
-        {
-          title: <Text style={{ textAlign: "center", fontSize: 20 }}>Change Location</Text>,
-          mustBeVerified: true,
-          action: () => {
-
-          }
-        },
-        {
-          title: <Text style={{ textAlign: "center", fontSize: 20, color: "#c0392b" }}>Sign Out</Text>,
+          title: <Text style={{ textAlign: "center", fontSize: 20 }}>Sign Out</Text>,
           mustBeVerified: false,
           action: () => {
             firebase.auth().signOut().then(() => {
@@ -57,6 +81,13 @@ export class ProfileScreen extends Component {
             }).catch(error => {
               alert(error)
             });
+          }
+        },
+        {
+          title: <Text style={{ textAlign: "center", fontSize: 20, color: "#c0392b"  }}>Reset Password</Text>,
+          mustBeVerified: false,
+          action: () => {
+            this.props.navigation.navigate("ResetPassProfile");
           }
         },
         {
@@ -69,13 +100,15 @@ export class ProfileScreen extends Component {
               [
                 { text: "Cancel", style: "cancel" },
                 { text: "Yes", onPress: () => {
-                  let user = firebase.auth().currentUser;
-                  firebase.database().ref("users/").child(user.uid).remove().then(() => {
-                    user.delete().then(() => {
-                      this.props.navigation.navigate("Auth");
-                    }).catch(error => {
-                      alert(error);
-                    });
+                  firebase.auth().onAuthStateChanged(user => {
+                    if (user)
+                      firebase.auth().signOut().then(() => {
+                        firebase.database().ref("users/").child(user.uid).remove().then(() => {
+                          user.delete().then(() => {
+                            this.props.navigation.navigate("Login");
+                          });
+                        });
+                      })
                   });
                 }}
               ]
@@ -86,18 +119,63 @@ export class ProfileScreen extends Component {
     }
   }
 
+  refreshState = () => {
+    firebase.auth().onAuthStateChanged(user => {
+      if (user) {
+        firebase.database().ref("users/" + user.uid).once("value").then(snapshot => {
+          if (snapshot.val())
+            this.setState({ userData: snapshot.val(), user: user, loading: false });
+        }).catch(error => {
+          alert(error);
+        });
+      }
+    })
+  }
+
+  componentDidMount() {
+    this.refreshState();
+  }
+
   static navigationOptions = {
-    header: (<Header currentUser />)
+    header: (<Header currentUser data={async () => {
+      let test = new Promise((resolve, reject) => {
+        firebase.auth().onAuthStateChanged(user => {
+          if (user) {
+            firebase.database().ref("users/" + user.uid).once("value").then(snapshot => {
+              if (snapshot.val())
+                resolve(snapshot.val());
+            }).catch(error => {
+              reject(error);
+            });
+          }
+        })
+      })
+      let fd;
+      await test.then(data => {
+        fd = data;
+      });
+      return fd;
+    }} />)
   }
 
   renderItem = ({ item }) => {
-    firebase.auth().currentUser.reload();
+    let currentUser;
+    firebase.auth().onAuthStateChanged(user => {
+      if (user)
+        currentUser = user;
+    });
     return (<ListItem
-      containerStyle={[ styles.listItem, firebase.auth().currentUser.emailVerified || !item.mustBeVerified ? styles.available : styles.unavailable ]}
+      containerStyle={[ styles.listItem, currentUser.emailVerified || !item.mustBeVerified ? styles.available : styles.unavailable ]}
       title={item.title}
       onPress={() => {
-        if (firebase.auth().currentUser.emailVerified || !item.mustBeVerified)
+        if (currentUser.emailVerified === true || item.mustBeVerified === false)
           item.action();
+        else
+          ToastAndroid.show(
+            "You must verify your email",
+            ToastAndroid.SHORT,
+            ToastAndroid.BOTTOM
+          );
       }}
     />)
   }
@@ -143,9 +221,10 @@ export class ProfileScreen extends Component {
               }
               color="#0d0"
               onPress={() => {
+                this.refreshState();
                 this.setState({ modalVisible: false });
                 firebase.database().ref("users/").child(this.state.user.uid).set({
-                  ...this.state.userData,
+                  imageURL: this.state.userData.imageURL,
                   displayName: this.state.inputName
                 }).then(() => {
                   this.setState({ userData: firebase.database().ref("users/").child(this.state.user.uid).on("value", snapshot => {if (snapshot.val()) return snapshot.val()}) })
@@ -164,6 +243,12 @@ export class ProfileScreen extends Component {
           data={this.state.list}
           renderItem={this.renderItem}
           keyExtractor={this.keyExtractor}
+          refreshControl={
+            <RefreshControl
+              refreshing={this.state.loading}
+              onRefresh={this.refreshState}
+            />
+          }
         />
       </View>
     )

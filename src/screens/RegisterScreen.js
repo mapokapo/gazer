@@ -94,7 +94,7 @@ export default class SignInScreen extends Component {
             this.props.navigation.navigate("EmailVerification", { data: { imageURL: item.downloadURL, email: user.user.email } });
           });
         }).catch(error => {
-          alert("1:" + error)
+          alert(error)
         });
       } else {
         firebase.database().ref("users/" + user.user.uid).set({
@@ -105,7 +105,7 @@ export default class SignInScreen extends Component {
         });
       }
     }).catch(error => {
-      alert("2: " + error);
+      alert(error);
     });
   };
 

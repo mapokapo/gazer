@@ -72,10 +72,10 @@ export default class ItemScreen extends Component {
         </View>
         <Text style={{ color: "#fff", textAlign: "center" }}>Added on {this.state.item.added_on}</Text>
         <View style={{ display: "flex", flexDirection: "row", alignItems: "center" }}><Icon type="material" name="location-on" color="#E84B3D" /><Text style={{ color: "#fff" }}>{this.state.item.location}</Text></View>
-        <View style={{ width: 115, height: 115, overflow: "hidden", marginTop: 10 }}>
+        <View style={{ width: 120, height: 120, overflow: "hidden", marginTop: 15 }}>
           <QRCode
             value={this.state.item.QRCodeURL}
-            size={340}
+            size={343}
             bgColor="#fff"
             fgColor="#000"
           />

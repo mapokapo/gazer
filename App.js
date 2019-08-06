@@ -17,7 +17,7 @@ import EmailVerificationScreen from "./src/screens/EmailVerificationScreen";
 
 import "./src/fixTimerBug";
 
-const LoginRegisterStack = createStackNavigator({ Login: { screen: LoginScreen }, Register: { screen: RegisterScreen }, ResetPass: { screen: ResetPassScreen }, EmailVerification: { screen: EmailVerificationScreen }});
+const LoginRegisterStack = createStackNavigator({ Login: { screen: LoginScreen }, Register: { screen: RegisterScreen }, ResetPass: { screen: ResetPassScreen }, EmailVerification: { screen: EmailVerificationScreen }}, { initialRouteName: "Login" });
 const AuthLoadingStack = createStackNavigator({ Loading: { screen: LoadingScreen } });
 
 const AuthSwitch = createSwitchNavigator({ LoginRegister: { screen: LoginRegisterStack }, Loading: { screen: AuthLoadingStack } }, { initialRouteName: "Loading" })

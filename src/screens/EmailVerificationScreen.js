@@ -21,13 +21,14 @@ export default class EmailVerificationScreen extends Component {
     header: null
   };
 
-  componentDidMount = () => {
+  componentDidMount() {
     let self = this;
-    self.setState({ data: self.props.navigation.getParam("data") });
-    firebase.auth().currentUser.sendEmailVerification().then(() => {
-      setTimeout(() => {
-        self.props.navigation.navigate("Loading");
-      }, 5000);
+    self.setState({ data: self.props.navigation.getParam("data") } ,() => {
+      firebase.auth().currentUser.sendEmailVerification().then(() => {
+        setTimeout(() => {
+          self.props.navigation.navigate("Loading");
+        }, 5000);
+      });
     });
   }
 

@@ -6,27 +6,21 @@ export default class Header extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      myWidth: 0,
-      currentUser: undefined
+      currentUser: null
     }
   }
 
-  componentDidMount = () => {
-    if (this.props.currentUser) {
-      firebase.auth().onAuthStateChanged(user => {
-        if (user) {
-          firebase.database().ref("users/" + user.uid).once("value").then(snapshot => {
-            this.setState({ currentUser: snapshot.val() });
-          });
-        }
-      })
+  componentDidMount = async () => {
+    if (this.props.currentUser && this.props.data) {
+      let data = await this.props.data();
+      this.setState({ currentUser: data });
     }
   }
 
   render() {
     return (
       <View style={{ backgroundColor: "#3498db", height: 60, display: "flex", flexDirection: "row", justifyContent: "flex-start", alignItems: "center", position: "relative", paddingVertical: 33.25 }}>
-        {(this.state.currentUser !== undefined && this.state.currentUser.imageURL !== undefined) ?
+        {(this.state.currentUser !== undefined && this.state.currentUser != null) ?
           (
             <Fragment>
               <Image style={{ height: 48, width: 48, margin: 5, borderRadius: 48 / 2 }} source={{ uri: this.state.currentUser.imageURL }} />
