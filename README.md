@@ -14,12 +14,12 @@ A Utility Inventory Manager (UIM) Business Mobile App
 - [x] Complete Register system
 - [x] Complete Image upload on Register
 - [x] Implement Profile screen header
-- [ ] Configure email verification and add email verification screen
+- [x] Configure email verification and add email verification screen
 - [x] Implement forgotten password system
-- [ ] Implement email-verified-only features for profiles
+- [x] Implement email-verified-only features for profiles
 - [ ] Add Item display, creation, edition, and deletion system
 - [x] Implement search system for items
-- [ ] Complete QR Code Scanner for items
+- [x] Complete QR Code Scanner for items
 - [ ] Implement Admin profiles
 - [ ] Polish app (broad)  
 
