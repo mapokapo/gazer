@@ -9,6 +9,7 @@ export default class ItemScreen extends Component {
     super(props);
     this.state = {
       item: this.props.navigation.getParam("item"),
+      userData: this.props.navigation.getParam("userData"),
       buttonWidth: 0,
       buttonHeight: 0
     }
@@ -23,41 +24,55 @@ export default class ItemScreen extends Component {
       headerTintColor: "#fff",
       headerRight: (
         <View style={{ display: "flex", justifyContent: "center", alignItems: "center", flexDirection: "row" }}>
-          <Button icon={
-            <Icon type="material" name="edit" color="#3fb0fc" />
-          } buttonStyle={{ backgroundColor: "transparent", marginHorizontal: 10 }}
-            onPress={() => {
-              this.editItem()
-            }}
-          />
-          <Button icon={
-            <Icon type="material" name="delete" color="#e74c3c" />
-          } buttonStyle={{ backgroundColor: "transparent", marginRight: 10 }}
-            onPress={() => {
-              let item = navigation.getParam("item");
-              Alert.alert(
-                "Confirm Deletion",
-                "Are you sure you want to delete this item?",
-                [
-                  { text: "Cancel", style: "cancel" },
-                  { text: "Yes", onPress: () => {
-                    firebase.database().ref("items/").child(item.QRCodeURL).remove().then(() => {
-                      firebase.storage().ref("itemImages/").child(item.QRCodeURL).delete().then(() => {
-                        navigation.navigate("Items");
-                      }).catch(() => {
-                        navigation.navigate("Items");
+          {navigation.getParam("userData").admin === 1 &&
+            <Button icon={
+              <Icon type="material" name="edit" color="#3fb0fc" />
+            } buttonStyle={{ backgroundColor: "transparent", marginHorizontal: 10 }}
+              onPress={() => {
+                this.editItem()
+              }}
+            />
+          }
+          {navigation.getParam("userData").admin === 1 &&
+            <Button icon={
+              <Icon type="material" name="delete" color="#e74c3c" />
+            } buttonStyle={{ backgroundColor: "transparent", marginRight: 10 }}
+              onPress={() => {
+                let item = navigation.getParam("item");
+                Alert.alert(
+                  "Confirm Deletion",
+                  "Are you sure you want to delete this item?",
+                  [
+                    { text: "Cancel", style: "cancel" },
+                    { text: "Yes", onPress: () => {
+                      firebase.database().ref("items/").child(item.QRCodeURL).remove().then(() => {
+                        firebase.storage().ref("itemImages/").child(item.QRCodeURL).delete().then(() => {
+                          navigation.navigate("Items");
+                        }).catch(() => {
+                          navigation.navigate("Items");
+                        });
+                      }).catch(error => {
+                        alert(error);
                       });
-                    }).catch(error => {
-                      alert(error);
-                    });
-                  } },
-                ]
-              )
-            }}
-          />
+                    } },
+                  ]
+                )
+              }}
+            />
+          }
         </View>
       )
     }
+  }
+
+  componentDidMount() {
+    firebase.auth().onAuthStateChanged(user => {
+      if (user)
+        firebase.database().ref("users/").child(user.uid).on("value", snapshot => {
+          if (snapshot.val())
+            this.setState({ userData: snapshot.val(), user });
+        })
+    });
   }
 
   render() {
@@ -90,7 +105,11 @@ export default class ItemScreen extends Component {
           } buttonStyle={{ borderRadius: (this.state.buttonWidth + this.state.buttonHeight) / 2, minWidth: 125, minHeight: 25 }}
           onLayout={e => {
             this.setState({ buttonWidth: e.nativeEvent.layout.width, buttonHeight: e.nativeEvent.layout.height })
-          }} />
+          }}
+          onPress={() => {
+            this.props.navigation.push("Home");
+          }}
+          />
         </View>
       </View>
     )

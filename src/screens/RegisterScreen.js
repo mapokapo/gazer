@@ -82,6 +82,9 @@ export default class SignInScreen extends Component {
     .auth()
     .createUserWithEmailAndPassword(credentials.email, credentials.pass)
     .then(async user => {
+      user.user.updateProfile({
+        displayName: credentials.name
+      });
       if (this.state.image !== null) {
         let ref = firebase.storage().ref("profileImages/").child(user.user.uid);
         let ext = this.state.image.path.split(".")[1];
@@ -89,7 +92,8 @@ export default class SignInScreen extends Component {
         .then(item => {
           firebase.database().ref("users/" + user.user.uid).set({
             displayName: credentials.name,
-            imageURL: item.downloadURL
+            imageURL: item.downloadURL,
+            admin: 0
           }).then(() => {
             this.props.navigation.navigate("EmailVerification", { data: { imageURL: item.downloadURL, email: user.user.email } });
           });
@@ -99,7 +103,8 @@ export default class SignInScreen extends Component {
       } else {
         firebase.database().ref("users/" + user.user.uid).set({
           displayName: credentials.name,
-          imageURL: this.state.profileImageURL
+          imageURL: this.state.profileImageURL,
+          admin: 0
         }).then(() => {
           this.props.navigation.navigate("EmailVerification", { data: { imageURL: this.state.profileImageURL, email: user.user.email } });
         });

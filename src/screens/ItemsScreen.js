@@ -10,7 +10,9 @@ export default class ItemsScreen extends Component {
     this.state = {
       search: "",
       list: [],
-      loading: true
+      loading: true,
+      userData: "",
+      user: ""
     }
   }
 
@@ -19,6 +21,13 @@ export default class ItemsScreen extends Component {
   };
 
   fetchItems = () => {
+    firebase.auth().onAuthStateChanged(user => {
+      if (user)
+          firebase.database().ref("users/").child(user.uid).on("value", snapshot => {
+            if (snapshot.val())
+              this.setState({ userData: snapshot.val(), user });
+          })
+    });
     firebase.database().ref("items").on("value", snapshot => {
       if (!snapshot.val()) {
         return
@@ -35,7 +44,7 @@ export default class ItemsScreen extends Component {
   renderItem = ({ item }) =>
     <ListItem
       onPress={() => {
-        this.props.navigation.navigate("Item", { item });
+        this.props.navigation.navigate("Item", { item, userData: this.state.userData });
       }}
       containerStyle={{ margin: 3, borderRadius: 5, padding: 10 }}
       title={item.title}
@@ -89,15 +98,17 @@ export default class ItemsScreen extends Component {
           renderItem={this.renderItem}
           keyExtractor={this.keyExtractor}
         />
-        <Button
-          onPress={() => {
-            this.props.navigation.navigate("AddItem");
-          }}
-          buttonStyle={styles.FloatingActionButton}
-          icon={
-            <Icon type="material" name="add" color="#222" size={35} />
-          }
-        />
+        {this.state.userData.admin === 1 &&
+          <Button
+            onPress={() => {
+              this.props.navigation.navigate("AddItem");
+            }}
+            buttonStyle={styles.FloatingActionButton}
+            icon={
+              <Icon type="material" name="add" color="#222" size={35} />
+            }
+          />
+        }
       </View>
     );
   }
