@@ -115,7 +115,7 @@ export default class ItemsScreen extends Component {
 
   updateSearch = search => {
     this.setState({ search }, () => {
-      firebase.database().ref("items/").orderByChild("searchQuery").startAt(search.toLowerCase()).endAt(search.toLowerCase()+"\uf8ff").on("value", snapshot => {
+      firebase.database().ref("items/").orderByChild("searchQuery").startAt(search.toUpperCase()).endAt(search.toLowerCase()+"\uf8ff").on("value", snapshot => {
         if (snapshot.val()) {
           this.setState({ list: Object.values(snapshot.val()) });
         }

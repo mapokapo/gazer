@@ -27,6 +27,7 @@ export class ProfileScreen extends Component {
         {
           title: <Text style={{ textAlign: "center", fontSize: 20 }}>Change Name</Text>,
           mustBeVerified: true,
+          mustBeAdmin: false,
           action: () => {
             this.setState({ modalVisible: true })
           }
@@ -34,6 +35,7 @@ export class ProfileScreen extends Component {
         {
           title: <Text style={{ textAlign: "center", fontSize: 20 }}>Change Profile Image</Text>,
           mustBeVerified: true,
+          mustBeAdmin: false,
           action: () => {
             ImagePicker.showImagePicker(options, (response) => {
               if (!response.didCancel && !response.error) {
@@ -62,6 +64,7 @@ export class ProfileScreen extends Component {
         {
           title: <Text style={{ textAlign: "center", fontSize: 20 }}>Resend Confirmation Email</Text>,
           mustBeVerified: false,
+          mustBeAdmin: false,
           action: () => {
             firebase.auth().currentUser.sendEmailVerification().then(() => {
               ToastAndroid.show(
@@ -75,6 +78,7 @@ export class ProfileScreen extends Component {
         {
           title: <Text style={{ textAlign: "center", fontSize: 20 }}>Sign Out</Text>,
           mustBeVerified: false,
+          mustBeAdmin: false,
           action: () => {
             firebase.auth().signOut().then(() => {
               this.props.navigation.navigate("Login")
@@ -86,6 +90,7 @@ export class ProfileScreen extends Component {
         {
           title: <Text style={{ textAlign: "center", fontSize: 20, color: "#c0392b"  }}>Reset Password</Text>,
           mustBeVerified: false,
+          mustBeAdmin: false,
           action: () => {
             this.props.navigation.push("ResetPassProfile");
           }
@@ -93,6 +98,7 @@ export class ProfileScreen extends Component {
         {
           title: <Text style={{ textAlign: "center", fontSize: 20, color: "#c0392b" }}>Delete Account</Text>,
           mustBeVerified: false,
+          mustBeAdmin: false,
           action: () => {
             Alert.alert(
               "Confirm Deletion",
@@ -118,6 +124,14 @@ export class ProfileScreen extends Component {
                 }}
               ]
             )
+          }
+        },
+        {
+          title: <Text style={{ textAlign: "center", fontSize: 20, color: "#2ecc71" }}>Admin Control Panel</Text>,
+          mustBeVerified: true,
+          mustBeAdmin: true,
+          action: () => {
+            this.props.navigation.navigate("AdminControlPanel", { user: this.state.user, userData: this.state.userData });
           }
         }
       ]
@@ -178,21 +192,20 @@ export class ProfileScreen extends Component {
 
   changeName = async () => {
     await new Promise((resolve, reject) => {
-      firebase.auth().onAuthStateChanged(user => {
-        if (user && this._isMounted) {
-          firebase.database().ref("users/" + user.uid).once("value", snapshot => {
-            if (snapshot.val() && this._isMounted)
-              this.setState({ userData: snapshot.val(), user: user, loading: false }, () => {
-                resolve(this.state);
-              });
-          });
-        } else {
-          if (this._isMounted) {
-            alert("An error occured, try logging in and out");
-            reject();
-          }
+      let user = firebase.auth().currentUser;
+      if (user && this._isMounted) {
+        firebase.database().ref("users/" + user.uid).once("value", snapshot => {
+          if (snapshot.val() && this._isMounted)
+            this.setState({ userData: snapshot.val(), user: user, loading: false }, () => {
+              resolve(this.state);
+            });
+        });
+      } else {
+        if (this._isMounted) {
+          alert("An error occured, try logging in and out");
+          reject();
         }
-      });
+      }
     });
     this.setState({ modalVisible: false });
     firebase.database().ref("users/").child(this.state.user.uid).set({
@@ -209,23 +222,56 @@ export class ProfileScreen extends Component {
   }
 
   renderItem = ({ item }) => {
-    let currentUser;
-    firebase.auth().onAuthStateChanged(user => {
-      if (user)
-        currentUser = user;
-    });
+    let user = firebase.auth().currentUser;
+    let userData = this.state.userData;
     return (<ListItem
-      containerStyle={[ styles.listItem, currentUser.emailVerified || !item.mustBeVerified ? styles.available : styles.unavailable ]}
+      containerStyle={[ styles.listItem, (() => {
+        if (item.mustBeAdmin) {
+          if (user.emailVerified) {
+            if (userData.admin === 1) {
+              return styles.available;
+            } else {
+              return styles.hidden;
+            }
+          } else {
+            return styles.unavailable;
+          }
+        } else if (item.mustBeVerified) {
+          if (user.emailVerified) {
+            return styles.available;
+          } else {
+            return styles.unavailable;
+          }
+        }
+      })()
+    ]}
       title={item.title}
       onPress={() => {
-        if (currentUser.emailVerified === true || item.mustBeVerified === false)
+        if (item.mustBeAdmin) {
+          if (user.emailVerified) {
+            if (this.state.userData.admin === 1) {
+              item.action();
+            }
+          } else {
+            ToastAndroid.show(
+              "You must verify your email",
+              ToastAndroid.SHORT,
+              ToastAndroid.BOTTOM
+            );
+          }
+        } else if (item.mustBeVerified) {
+          if (user.emailVerified) {
+            item.action();
+          } else {
+            ToastAndroid.show(
+              "You must verify your email",
+              ToastAndroid.SHORT,
+              ToastAndroid.BOTTOM
+            );
+          }
+        } else {
           item.action();
-        else
-          ToastAndroid.show(
-            "You must verify your email",
-            ToastAndroid.SHORT,
-            ToastAndroid.BOTTOM
-          );
+        }
       }}
     />)
   }
@@ -237,7 +283,7 @@ export class ProfileScreen extends Component {
       <View style={{ backgroundColor: "#065471", flex: 1 }}>
         <NavigationEvents
           onDidFocus={() => {
-            this.setState({ userData: firebase.database().ref("users/").child(this.state.user.uid).on("value", snapshot => {if (snapshot.val()) return snapshot.val()}), user: firebase.auth().currentUser });
+            this.refreshState();
           }}
         />
         <Overlay
@@ -254,7 +300,7 @@ export class ProfileScreen extends Component {
               placeholder="Enter Name"
               errorMessage="Name must be valid!"
               shake={true}
-              errorStyle={{ color: "#c0392b" }}
+              errorStyle={{ color: "#333" }}
               onChangeText={value => this.setState({ inputName: value })}
             />
             <Button
@@ -301,6 +347,9 @@ const styles = StyleSheet.create({
   },
   available: {
     opacity: 1
+  },
+  hidden: {
+    display: "none"
   },
   listItem: {
     margin: 3,
