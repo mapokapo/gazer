@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Text, View, Image, Alert } from 'react-native';
+import { Text, View, Image, Alert, StatusBar } from 'react-native';
 import { Icon, Button } from "react-native-elements";
 import firebase from 'react-native-firebase';
 import QRCode from 'react-native-qrcode';
@@ -78,6 +78,7 @@ export default class ItemScreen extends Component {
   render() {
     return (
       <View style={{ display: "flex", alignItems: "center", backgroundColor: "#065471", flex: 1, padding: 5 }}>
+        <StatusBar backgroundColor="#065471" barStyle="light-content" />
         <View>
           <Image source={{ uri: this.state.item.imageURL }} style={{ width: 200, height: 200, borderRadius: 200 / 1, backgroundColor: "#065471" }} />
         </View>

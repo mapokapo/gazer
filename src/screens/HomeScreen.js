@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { View, StyleSheet, Dimensions, Animated, Text, Vibration } from "react-native";
+import { View, StyleSheet, Dimensions, Animated, Text, Vibration, StatusBar } from "react-native";
 import Header from "../components/Header";
 import { RNCamera } from "react-native-camera";
 import firebase from "react-native-firebase";
@@ -61,6 +61,7 @@ export default class HomeScreen extends Component {
   render() {
     return (
       <View style={styles.container}>
+        <StatusBar backgroundColor="#065471" barStyle="light-content" />
         <View style={{ width: Dimensions.get("window").width/100*80, height: Dimensions.get("window").height/100*65, borderRadius: 15, overflow: "hidden", borderColor: "#f39c12", borderWidth: 1, borderStyle: "dashed" }}>
           <RNCamera
             ref={ref => {

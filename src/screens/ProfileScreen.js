@@ -1,9 +1,8 @@
 import React, { Component } from "react";
-import { View, Text, FlatList, Alert, ToastAndroid, Dimensions, StyleSheet, RefreshControl } from "react-native";
+import { View, Text, FlatList, Alert, ToastAndroid, Dimensions, StyleSheet, RefreshControl, Image, StatusBar } from "react-native";
 import { ListItem, Overlay, Button, Input, Icon } from "react-native-elements";
 import firebase from "react-native-firebase";
 import Header from "../components/Header";
-import { NavigationEvents } from "react-navigation";
 import ImagePicker from 'react-native-image-picker';
 
 const options = {
@@ -28,6 +27,8 @@ export class ProfileScreen extends Component {
           title: <Text style={{ textAlign: "center", fontSize: 20 }}>Change Name</Text>,
           mustBeVerified: true,
           mustBeAdmin: false,
+          icon: "label",
+          iconColor: "#3498db",
           action: () => {
             this.setState({ modalVisible: true })
           }
@@ -36,27 +37,32 @@ export class ProfileScreen extends Component {
           title: <Text style={{ textAlign: "center", fontSize: 20 }}>Change Profile Image</Text>,
           mustBeVerified: true,
           mustBeAdmin: false,
+          icon: "face",
+          iconColor: "#3498db",
           action: () => {
             ImagePicker.showImagePicker(options, (response) => {
               if (!response.didCancel && !response.error) {
-                this.refreshState();
-                let ref = firebase.storage().ref("profileImages/").child(this.state.user.uid);
-                let ext = response.path.split(".")[1];
-                ref.putFile(response.path, { contentType: `image/${ext}` })
-                .then(item => {
-                  firebase.database().ref("users/" + this.state.user.uid).set({
-                    displayName: this.state.userData.displayName,
-                    imageURL: item.downloadURL
-                  }).then(() => {
-                    ToastAndroid.show(
-                      "Profile Image changed",
-                      ToastAndroid.SHORT,
-                      ToastAndroid.BOTTOM
-                    );
+                this.refreshState().then(state => {
+                  let ref = firebase.storage().ref("profileImages/").child(state.user.uid);
+                  let ext = response.path.split(".")[1];
+                  ref.putFile(response.path, { contentType: `image/${ext}` })
+                  .then(item => {
+                    firebase.database().ref("users/" + state.user.uid).set({
+                      displayName: state.userData.displayName,
+                      imageURL: item.downloadURL,
+                      joined: state.userData.joined,
+                      admin: state.userData.admin
+                    }).then(() => {
+                      ToastAndroid.show(
+                        "Profile Image changed",
+                        ToastAndroid.SHORT,
+                        ToastAndroid.BOTTOM
+                      );
+                    });
+                  }).catch(error => {
+                    alert(error)
                   });
-                }).catch(error => {
-                  alert(error)
-                });
+                }).catch(error => alert(error));
               }
             });
           }
@@ -65,6 +71,8 @@ export class ProfileScreen extends Component {
           title: <Text style={{ textAlign: "center", fontSize: 20 }}>Resend Confirmation Email</Text>,
           mustBeVerified: false,
           mustBeAdmin: false,
+          icon: "email",
+          iconColor: "#3498db",
           action: () => {
             firebase.auth().currentUser.sendEmailVerification().then(() => {
               ToastAndroid.show(
@@ -79,6 +87,8 @@ export class ProfileScreen extends Component {
           title: <Text style={{ textAlign: "center", fontSize: 20 }}>Sign Out</Text>,
           mustBeVerified: false,
           mustBeAdmin: false,
+          icon: "arrow-back",
+          iconColor: "#3498db",
           action: () => {
             firebase.auth().signOut().then(() => {
               this.props.navigation.navigate("Login")
@@ -91,6 +101,8 @@ export class ProfileScreen extends Component {
           title: <Text style={{ textAlign: "center", fontSize: 20, color: "#c0392b"  }}>Reset Password</Text>,
           mustBeVerified: false,
           mustBeAdmin: false,
+          icon: "keyboard",
+          iconColor: "#3498db",
           action: () => {
             this.props.navigation.push("ResetPassProfile");
           }
@@ -99,6 +111,8 @@ export class ProfileScreen extends Component {
           title: <Text style={{ textAlign: "center", fontSize: 20, color: "#c0392b" }}>Delete Account</Text>,
           mustBeVerified: false,
           mustBeAdmin: false,
+          icon: "delete",
+          iconColor: "#3498db",
           action: () => {
             Alert.alert(
               "Confirm Deletion",
@@ -127,11 +141,15 @@ export class ProfileScreen extends Component {
           }
         },
         {
-          title: <Text style={{ textAlign: "center", fontSize: 20, color: "#2ecc71" }}>Admin Control Panel</Text>,
+          title: <Text style={{ textAlign: "center", fontSize: 20, color: "#27ae60" }}>Admin Control Panel</Text>,
           mustBeVerified: true,
           mustBeAdmin: true,
+          icon: "settings",
+          iconColor: "#3498db",
           action: () => {
-            this.props.navigation.navigate("AdminControlPanel", { user: this.state.user, userData: this.state.userData });
+            this.refreshState().then(state => {
+              this.props.navigation.navigate("AdminControlPanel", { user: state.user, userData: state.userData });
+            }).catch(error => alert(error));
           }
         }
       ]
@@ -141,26 +159,34 @@ export class ProfileScreen extends Component {
   }
 
   refreshState = () => {
-    if (!this._isMounted)
-      return;
-    this.unsubscribe = firebase.auth().onAuthStateChanged(user => {
-      if (user && this._isMounted) {
-        firebase.database().ref("users/" + user.uid).once("value", snapshot => {
-          if (snapshot.val() && this._isMounted)
-            this.setState({ userData: snapshot.val(), user: user, loading: false });
-        });
-      } else {
-        if (this._isMounted) {
-          alert("An error occured, try logging in and out");
-        }
+    return new Promise((resolve, reject) => {
+      if (!this._isMounted) {
+        reject("An error has occured, try signing out and in");
+        return;
       }
-    });
+      this.unsubscribe = firebase.auth().onAuthStateChanged(user => {
+        if (user && this._isMounted) {
+          firebase.database().ref("users/" + user.uid).once("value", snapshot => {
+            if (snapshot.val() && this._isMounted)
+              this.setState({ userData: snapshot.val(), user: user, loading: false }, () => {
+                resolve(this.state);
+              });
+          });
+        } else {
+          if (this._isMounted) {
+            reject("An error has occured, try signing out and in");
+          }
+        }
+      });
+    })
   }
 
   componentDidMount() {
     this._isMounted = true;
     if (this._isMounted)
-      this.refreshState();
+      this.refreshState().catch(error => {
+        alert(error);
+      });
   }
 
   componentWillUnmount() {
@@ -169,56 +195,25 @@ export class ProfileScreen extends Component {
   }
 
   static navigationOptions = {
-    header: (<Header currentUser data={async () => {
-      let test = new Promise((resolve, reject) => {
-        let user = firebase.auth().currentUser;
-          if (user) {
-            firebase.database().ref("users/" + user.uid).once("value", snapshot => {
-              if (snapshot.val())
-                resolve(snapshot.val());
-              else {
-                reject();
-              }
-            });
-          }
-      })
-      let fd;
-      await test.then(data => {
-        fd = data;
-      });
-      return fd;
-    }} />)
+    header: (<Header profile />)
   }
 
   changeName = async () => {
-    await new Promise((resolve, reject) => {
-      let user = firebase.auth().currentUser;
-      if (user && this._isMounted) {
-        firebase.database().ref("users/" + user.uid).once("value", snapshot => {
-          if (snapshot.val() && this._isMounted)
-            this.setState({ userData: snapshot.val(), user: user, loading: false }, () => {
-              resolve(this.state);
-            });
-        });
-      } else {
-        if (this._isMounted) {
-          alert("An error occured, try logging in and out");
-          reject();
-        }
-      }
-    });
-    this.setState({ modalVisible: false });
-    firebase.database().ref("users/").child(this.state.user.uid).set({
-      imageURL: this.state.userData.imageURL,
-      displayName: this.state.inputName
-    }).then(() => {
-      this.setState({ userData: firebase.database().ref("users/").child(this.state.user.uid).once("value", snapshot => {if (snapshot.val()) return snapshot.val()}) })
-      ToastAndroid.show(
-        "Name Changed",
-        ToastAndroid.SHORT,
-        ToastAndroid.BOTTOM
-      )
-    });
+    this.refreshState().then(state => {
+      this.setState({ modalVisible: false });
+      firebase.database().ref("users/").child(state.user.uid).set({
+        imageURL: state.userData.imageURL,
+        displayName: state.inputName,
+        joined: state.userData.joined,
+        admin: state.userData.admin
+      }).then(() => {
+        ToastAndroid.show(
+          "Name Changed",
+          ToastAndroid.SHORT,
+          ToastAndroid.BOTTOM
+        )
+      });
+    }).catch(error => alert(error));
   }
 
   renderItem = ({ item }) => {
@@ -227,14 +222,14 @@ export class ProfileScreen extends Component {
     return (<ListItem
       containerStyle={[ styles.listItem, (() => {
         if (item.mustBeAdmin) {
-          if (user.emailVerified) {
-            if (userData.admin === 1) {
+          if (userData.admin === 1) {
+            if (user.emailVerified) {
               return styles.available;
             } else {
-              return styles.hidden;
+              return styles.unavailable;
             }
           } else {
-            return styles.unavailable;
+            return styles.hidden;
           }
         } else if (item.mustBeVerified) {
           if (user.emailVerified) {
@@ -245,19 +240,20 @@ export class ProfileScreen extends Component {
         }
       })()
     ]}
-      title={item.title}
+      title={<Text style={{ textAlign: "left" }}>{item.title}</Text>}
+      leftIcon={{ type: "material", name: item.icon, color: item.iconColor, size: 30 }}
       onPress={() => {
         if (item.mustBeAdmin) {
-          if (user.emailVerified) {
-            if (this.state.userData.admin === 1) {
+          if (userData.admin === 1) {
+            if (user.emailVerified) {
               item.action();
+            } else {
+              ToastAndroid.show(
+                "You must verify your email",
+                ToastAndroid.SHORT,
+                ToastAndroid.BOTTOM
+              );
             }
-          } else {
-            ToastAndroid.show(
-              "You must verify your email",
-              ToastAndroid.SHORT,
-              ToastAndroid.BOTTOM
-            );
           }
         } else if (item.mustBeVerified) {
           if (user.emailVerified) {
@@ -280,12 +276,8 @@ export class ProfileScreen extends Component {
 
   render() {
     return (
-      <View style={{ backgroundColor: "#065471", flex: 1 }}>
-        <NavigationEvents
-          onDidFocus={() => {
-            this.refreshState();
-          }}
-        />
+      <View style={{ backgroundColor: "#fff", flex: 1 }}>
+        <StatusBar backgroundColor="#065471" barStyle="light-content" />
         <Overlay
           width={Dimensions.get("window").width/100*70}
           height="auto"
@@ -322,6 +314,13 @@ export class ProfileScreen extends Component {
             />
           </View>
         </Overlay>
+        <View style={{ display: "flex", backgroundColor: "#eee", padding: 13, flexDirection: "row", justifyContent: "space-around", alignItems: "center", borderBottomColor: "#111", borderBottomWidth: StyleSheet.hairlineWidth }}>
+          <Image style={{ height: 95, width: 95, borderRadius: 95 / 2 }} source={{ uri: this.state.userData.imageURL }} />
+          <View style={{ display: "flex", flex: 1, justifyContent: "center", alignItems: "center" }}>
+            <View style={{ display: "flex", flexDirection: "row", alignItems: "center" }}><Text style={{ fontSize: 20, fontWeight: "bold" }}>{this.state.userData.displayName}</Text>{this.state.user.emailVerified && <Icon containerStyle={{ marginLeft: 4 }} type="material" name="verified-user" color="#27ae60" size={20} />}{this.state.userData.admin === 1 && <Icon type="material" name="grade" color="#9b59b6" size={22} />}</View>
+            <Text>{this.state.user.email}</Text>
+          </View>
+        </View>
         <FlatList
           style={{ margin: 3 }}
           data={this.state.list}
@@ -343,7 +342,7 @@ export default ProfileScreen;
 
 const styles = StyleSheet.create({
   unavailable: {
-    opacity: 0.7
+    opacity: 0.5
   },
   available: {
     opacity: 1
@@ -352,9 +351,9 @@ const styles = StyleSheet.create({
     display: "none"
   },
   listItem: {
-    margin: 3,
-    borderRadius: 10,
-    paddingVertical: 10,
-    backgroundColor: "#fff"
+    paddingVertical: 15,
+    backgroundColor: "#fff",
+    borderBottomColor: "#111",
+    borderBottomWidth: StyleSheet.hairlineWidth
   }
 });

@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { View, Text, RefreshControl, FlatList } from "react-native";
+import { View, Text, RefreshControl, FlatList, StatusBar } from "react-native";
 import { Icon, SearchBar, ListItem } from "react-native-elements";
 import firebase from "react-native-firebase";
 import { NavigationEvents } from "react-navigation";
@@ -36,7 +36,7 @@ export default class AdminControlPanelScreen extends Component {
   renderItem = ({ item }) =>
     <ListItem
       onPress={() => {
-        this.props.navigation.navigate("UserAdminControl", { user: item });
+        this.props.navigation.navigate("UserPanel", { user: item });
       }}
       containerStyle={{ margin: 3, borderRadius: 5, padding: 10 }}
       title={item.displayName}
@@ -47,8 +47,8 @@ export default class AdminControlPanelScreen extends Component {
         </View>
       }
       rightSubtitle={
-        <View style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", justifyContent: "center" }}>
-          <View style={{display: "flex", flexDirection: "row", justifyContent: "flex-start", alignItems: "center"}}><Icon type="material" name="date-range" /><Text numberOfLines={1} style={{ color: item.admin === 1 ? "#2ecc71" : "#333" }}>{item.admin === 1 ? "Admin" : "Is not Admin"}</Text></View>
+        item.admin === 1 && <View style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", justifyContent: "center" }}>
+          <View style={{display: "flex", flexDirection: "row", justifyContent: "flex-start", alignItems: "center"}}><Icon type="material" size={18} color="#9b59b6" name="grade" /><Text numberOfLines={1} style={{ color: "#333" }}>Admin</Text></View>
         </View>
       }
       rightContentContainerStyle={{ display: "flex", flex: 1, flexDirection: "row", justifyContent: "flex-start" }}
@@ -68,6 +68,7 @@ export default class AdminControlPanelScreen extends Component {
   render() {
     return (
       <View style={{ backgroundColor: "#065471", flex: 1 }}>
+        <StatusBar backgroundColor="#065471" barStyle="light-content" />
         <NavigationEvents
           onDidFocus={() => {
             this.fetchUsers()

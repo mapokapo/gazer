@@ -15,6 +15,7 @@ import ItemScreen from "./src/screens/ItemScreen";
 import AddItemScreen from "./src/screens/AddItemScreen";
 import EmailVerificationScreen from "./src/screens/EmailVerificationScreen";
 import AdminControlPanelScreen from "./src/screens/AdminControlPanelScreen";
+import UserPanelScreen from "./src/screens/UserPanelScreen";
 
 import "./src/fixTimerBug";
 
@@ -25,7 +26,8 @@ const AuthSwitch = createSwitchNavigator({ LoginRegister: { screen: LoginRegiste
 
 const HomeStack = createStackNavigator({Home: { screen: HomeScreen }});
 const ItemsStack = createStackNavigator({Items: { screen: ItemsScreen }, Item: { screen: ItemScreen }, AddItem: { screen: AddItemScreen } }, { initialRouteName: "Items" });
-const ProfileStack = createStackNavigator({Profile: { screen: ProfileScreen }, ResetPassProfile: { screen: ResetPassScreen }, AdminControlPanel: { screen: AdminControlPanelScreen }}, { initialRouteName: "Profile" });
+const AdminControlPanelStack = createStackNavigator({ AdminControlPanel: { screen: AdminControlPanelScreen }, UserPanel: { screen: UserPanelScreen } }, { initialRouteName: "AdminControlPanel", navigationOptions: { header: null } });
+const ProfileStack = createStackNavigator({Profile: { screen: ProfileScreen }, ResetPassProfile: { screen: ResetPassScreen }, AdminControlPanel: { screen: AdminControlPanelStack }}, { initialRouteName: "Profile" });
 
 const AppTabs = createMaterialTopTabNavigator(
   {

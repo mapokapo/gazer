@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { View, Text, StyleSheet, RefreshControl, FlatList } from "react-native";
+import { View, Text, StyleSheet, RefreshControl, FlatList, StatusBar } from "react-native";
 import { Icon, SearchBar, ListItem, Button } from "react-native-elements";
 import firebase from "react-native-firebase";
 import { NavigationEvents } from "react-navigation";
@@ -21,14 +21,13 @@ export default class ItemsScreen extends Component {
   };
 
   fetchItems = () => {
-    firebase.auth().onAuthStateChanged(user => {
-      if (user)
-          firebase.database().ref("users/").child(user.uid).on("value", snapshot => {
-            if (snapshot.val())
-              this.setState({ userData: snapshot.val(), user });
-          })
-    });
-    firebase.database().ref("items").on("value", snapshot => {
+    let user = firebase.auth().currentUser;
+    if (user)
+        firebase.database().ref("users/").child(user.uid).once("value", snapshot => {
+          if (snapshot.val())
+            this.setState({ userData: snapshot.val(), user });
+        })
+    firebase.database().ref("items/").once("value", snapshot => {
       if (!snapshot.val()) {
         return
       }
@@ -69,6 +68,7 @@ export default class ItemsScreen extends Component {
 
     return (
       <View style={{ backgroundColor: "#065471", flex: 1 }}>
+        <StatusBar backgroundColor="#065471" barStyle="light-content" />
         <NavigationEvents
           onDidFocus={() => {
             this.fetchItems();

@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { View, StyleSheet, Image, Keyboard } from 'react-native'
+import { View, StyleSheet, Image, Keyboard, StatusBar } from 'react-native'
 import firebase from "react-native-firebase";
 import ResetPassForm from "../components/ResetPassForm";
 
@@ -23,6 +23,7 @@ export default class ResetPassScreen extends Component {
   render() {
     return (
       <View style={styles.mainWrapper}>
+        <StatusBar backgroundColor="#065471" barStyle="light-content" />
         <View
           style={
             styles.logoContainer
