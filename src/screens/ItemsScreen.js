@@ -12,7 +12,8 @@ export default class ItemsScreen extends Component {
       list: [],
       loading: true,
       userData: "",
-      user: ""
+      user: "",
+      getUser: firebase.functions().httpsCallable("getUser")
     }
   }
 
@@ -27,11 +28,30 @@ export default class ItemsScreen extends Component {
           if (snapshot.val())
             this.setState({ userData: snapshot.val(), user });
         })
-    firebase.database().ref("items/").once("value", snapshot => {
+    firebase.database().ref("items/").once("value", async snapshot => {
       if (!snapshot.val()) {
         return
       }
-      let itemArray = Object.values(snapshot.val());
+      let itemArray = [];
+      let itemObj = snapshot.val();
+      for (let key of Object.keys(itemObj)) {
+        await new Promise((resolve, reject) => {
+          this.state.getUser({ uid: itemObj[key].added_by_uid }).then(userRecord => {
+            resolve(userRecord.data.emailVerified);
+          }).catch(error => {
+            alert(error);
+            reject();
+          });
+        }).then(async emailVerified => {
+          await firebase.database().ref("users/").child(itemObj[key].added_by_uid).once("value", ss => {
+            if (!ss.val())
+              return;
+            itemObj[key].admin = ss.val().admin;
+            itemObj[key].emailVerified = emailVerified;
+          });
+        });
+      }
+      itemArray = Object.values(itemObj);
       this.setState({ list: itemArray }, () => {
         this.setState({ loading: false });
       })
@@ -50,7 +70,7 @@ export default class ItemsScreen extends Component {
       titleStyle={{ fontSize: 18 }}
       subtitle={
         <View>
-          <Text style={{ color: "#444" }}>Added by {item.added_by}</Text>
+          <View style={{ display: "flex", flexDirection: "row", alignItems: "center" }}><Text style={{ color: "#444" }}>Added by {item.added_by}</Text>{item.emailVerified && <Icon containerStyle={{ marginLeft: 4 }} type="material" name="verified-user" color="#27ae60" size={15} />}{item.admin && <Icon type="material" name="grade" color="#9b59b6" size={17} />}</View>
         </View>
       }
       rightSubtitle={

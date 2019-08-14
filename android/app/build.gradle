@@ -215,6 +215,7 @@ dependencies {
     implementation "com.google.firebase:firebase-auth:17.0.0"
     implementation "com.google.firebase:firebase-database:17.0.0"
     implementation "com.google.firebase:firebase-storage:17.0.0"
+    implementation "com.google.firebase:firebase-functions:17.0.0"
     implementation 'com.android.support:multidex:1.0.3'
 
     if (enableHermes) {

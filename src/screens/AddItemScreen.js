@@ -91,6 +91,7 @@ export default class AddItemScreen extends Component {
         .then(item => {
           firebase.database().ref("items/" + itemID).set({
             added_by: userData.displayName,
+            added_by_uid: user.uid,
             added_on: formattedDate,
             imageURL: item.downloadURL,
             QRCodeURL: itemID,
@@ -108,6 +109,7 @@ export default class AddItemScreen extends Component {
       } else {
         firebase.database().ref("items/" +itemID).set({
           added_by: userData.displayName,
+          added_by_uid: user.uid,
           added_on: formattedDate,
           imageURL: this.state.itemImageURL,
           QRCodeURL: itemID,

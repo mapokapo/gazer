@@ -12,7 +12,8 @@ export default class AdminControlPanelScreen extends Component {
       userList: [],
       loading: true,
       userData: "",
-      user: ""
+      user: "",
+      getUser: firebase.functions().httpsCallable("getUser")
     }
   }
 
@@ -21,13 +22,32 @@ export default class AdminControlPanelScreen extends Component {
   };
 
   fetchUsers = () => {
-    firebase.database().ref("users/").on("value", snapshot => {
+    firebase.database().ref("users/").on("value", async snapshot => {
       if (!snapshot.val())
         return;
-      let userArray = Object.values(snapshot.val());
-      this.setState({ userList: userArray }, () => {
-        this.setState({ loading: false });
-      })
+        let userArray = [];
+        let userObj = snapshot.val();
+        for (let key of Object.keys(userObj)) {
+          await new Promise((resolve, reject) => {
+            this.state.getUser({ uid: key }).then(userRecord => {
+              resolve(userRecord.data.emailVerified);
+            }).catch(error => {
+              alert(error);
+              reject();
+            });
+          }).then(async emailVerified => {
+            await firebase.database().ref("users/").child(key).once("value", ss => {
+              if (!ss.val())
+                return;
+              userObj[key].admin = ss.val().admin;
+              userObj[key].emailVerified = emailVerified;
+            });
+          });
+        }
+        userArray = Object.values(userObj);
+        this.setState({ userList: userArray }, () => {
+          this.setState({ loading: false });
+        })
     });
   }
 
@@ -47,8 +67,9 @@ export default class AdminControlPanelScreen extends Component {
         </View>
       }
       rightSubtitle={
-        item.admin === 1 && <View style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", justifyContent: "center" }}>
-          <View style={{display: "flex", flexDirection: "row", justifyContent: "flex-start", alignItems: "center"}}><Icon type="material" size={18} color="#9b59b6" name="grade" /><Text numberOfLines={1} style={{ color: "#333" }}>Admin</Text></View>
+        <View style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", justifyContent: "center" }}>
+          {item.admin === 1 && <View style={{display: "flex", flexDirection: "row", justifyContent: "flex-start", alignItems: "center"}}><Icon type="material" size={20} color="#9b59b6" name="grade" /><Text numberOfLines={1} style={{ color: "#333" }}>Admin</Text></View>}
+          {item.emailVerified && <View style={{display: "flex", flexDirection: "row", justifyContent: "flex-start", alignItems: "center"}}><Icon type="material" size={18} color="#27ae60" name="verified-user" /><Text numberOfLines={1} style={{ color: "#333" }}>Verified</Text></View>}
         </View>
       }
       rightContentContainerStyle={{ display: "flex", flex: 1, flexDirection: "row", justifyContent: "flex-start" }}
