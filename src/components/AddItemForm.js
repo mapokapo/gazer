@@ -45,7 +45,7 @@ export default class AddItemForm extends Component {
           }}
           autoCapitalize="none"
           placeholder="Location (Country, City/State)"
-          returnKeyType="next"
+          returnKeyType="done"
           blurOnSubmit={false}
           onChangeText={input => {
             this.setState({ location: input });
@@ -93,9 +93,6 @@ const styles = StyleSheet.create({
     borderStyle: "solid",
     position: "relative",
     backgroundColor: "#fff"
-  },
-  smallTextButton: {
-    color: "#3fb0fc"
   },
   bigButton: {
     height: 50,

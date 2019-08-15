@@ -84,6 +84,7 @@ export default class AddItemScreen extends Component {
         userData = snapshot.val();
     }).then(() => {
       let itemID = uuid();
+      let QRCodeID = uuid().slice(0, 17);
       if (this.state.image !== null) {
         let ref = firebase.storage().ref("itemImages/").child(itemID);
         let ext = this.state.image.path.split(".")[1];
@@ -94,7 +95,7 @@ export default class AddItemScreen extends Component {
             added_by_uid: user.uid,
             added_on: formattedDate,
             imageURL: item.downloadURL,
-            QRCodeURL: itemID,
+            QRCodeURL: QRCodeID,
             location: credentials.location,
             searchQuery: credentials.title.toLowerCase(),
             title: credentials.title
@@ -112,7 +113,7 @@ export default class AddItemScreen extends Component {
           added_by_uid: user.uid,
           added_on: formattedDate,
           imageURL: this.state.itemImageURL,
-          QRCodeURL: itemID,
+          QRCodeURL: QRCodeID,
           location: credentials.location,
           searchQuery: credentials.title.toLowerCase(),
           title: credentials.title
@@ -167,7 +168,8 @@ export default class AddItemScreen extends Component {
 const styles = StyleSheet.create({
   mainWrapper: {
     backgroundColor: "#065471",
-    flex: 1
+    flex: 1,
+    padding: 5
   },
   logoContainer: {
     alignItems: "center",

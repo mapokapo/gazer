@@ -1,16 +1,27 @@
 import React, { Component } from "react";
 import { Text, View, StatusBar } from "react-native";
+import firebase from "react-native-firebase";
+import Header from "../components/Header";
 
 export default class UserPanelScreen extends Component {
   constructor(props) {
     super(props);
+    this.state = {
+      viewedUserData: this.props.navigation.getParam("userData"),
+      user: "",
+      userData: "",
+      getUser: firebase.functions().httpsCallable("getUser")
+    }
   }
 
-  static navigationOptions = {
-    headerStyle: {
-      backgroundColor: "#065471"
-    },
-    headerTintColor: "#fff"
+  static navigationOptions = ({ navigation }) => {
+    return {
+      header: <Header userPanel userData={navigation.getParam("userData")} />,
+      headerStyle: {
+        backgroundColor: "#065471"
+      },
+      headerTintColor: "#fff"
+    }
   };
 
   render() {

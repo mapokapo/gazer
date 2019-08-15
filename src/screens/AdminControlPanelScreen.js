@@ -56,7 +56,7 @@ export default class AdminControlPanelScreen extends Component {
   renderItem = ({ item }) =>
     <ListItem
       onPress={() => {
-        this.props.navigation.navigate("UserPanel", { user: item });
+        this.props.navigation.navigate("UserPanel", { userData: item });
       }}
       containerStyle={{ margin: 3, borderRadius: 5, padding: 10 }}
       title={item.displayName}

@@ -30,31 +30,33 @@ export default class ItemsScreen extends Component {
         })
     firebase.database().ref("items/").once("value", async snapshot => {
       if (!snapshot.val()) {
+        this.setState({ loading: false })
         return
       }
       let itemArray = [];
       let itemObj = snapshot.val();
-      for (let key of Object.keys(itemObj)) {
-        await new Promise((resolve, reject) => {
+      let fetch = () => new Promise((resolve, reject) => {
+        for (let key of Object.keys(itemObj)) {
           this.state.getUser({ uid: itemObj[key].added_by_uid }).then(userRecord => {
-            resolve(userRecord.data.emailVerified);
+            firebase.database().ref("users/").child(itemObj[key].added_by_uid).once("value", ss => {
+              if (!ss.val())
+                return;
+              itemObj[key].admin = ss.val().admin;
+              itemObj[key].emailVerified = userRecord.data.emailVerified;
+              resolve();
+            });
           }).catch(error => {
             alert(error);
-            reject();
+            reject(error);
           });
-        }).then(async emailVerified => {
-          await firebase.database().ref("users/").child(itemObj[key].added_by_uid).once("value", ss => {
-            if (!ss.val())
-              return;
-            itemObj[key].admin = ss.val().admin;
-            itemObj[key].emailVerified = emailVerified;
-          });
+        }
+      });
+      fetch().then(() => {
+        itemArray = Object.values(itemObj);
+        this.setState({ list: itemArray }, () => {
+          this.setState({ loading: false });
         });
-      }
-      itemArray = Object.values(itemObj);
-      this.setState({ list: itemArray }, () => {
-        this.setState({ loading: false });
-      })
+      }).catch(error => alert(error));
     });
   }
 
@@ -80,7 +82,7 @@ export default class ItemsScreen extends Component {
         </View>
       }
       rightContentContainerStyle={{ display: "flex", flex: 1, flexDirection: "row", justifyContent: "flex-start" }}
-      leftAvatar={{ source: { uri: item.imageURL }, size: "medium" }}
+      leftAvatar={{ source: { uri: item.imageURL }, size: "medium", avatarStyle: { backgroundColor: "#fff" } }}
     />
 
   render() {
@@ -91,7 +93,9 @@ export default class ItemsScreen extends Component {
         <StatusBar backgroundColor="#065471" barStyle="light-content" />
         <NavigationEvents
           onDidFocus={() => {
-            this.fetchItems();
+            this.setState({ loading: true }, () => {
+              this.fetchItems();
+            });
           }}
         />
         <SearchBar
@@ -107,6 +111,12 @@ export default class ItemsScreen extends Component {
         />
         <FlatList
           style={{ margin: 3 }}
+          ListEmptyComponent=
+            {!this.state.loading &&
+              <View style={{ display: "flex", justifyContent: "center", alignItems: "center", marginTop: 15 }}>
+                <Text style={{ textAlign: "center", color: "#fff", fontFamily: "Montserrat-ExtraBold" }}>There aren't any items here.</Text>
+              </View>
+            }
           refreshControl={
             <RefreshControl
               refreshing={this.state.loading}

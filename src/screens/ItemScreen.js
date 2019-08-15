@@ -29,7 +29,7 @@ export default class ItemScreen extends Component {
               <Icon type="material" name="edit" color="#3fb0fc" />
             } buttonStyle={{ backgroundColor: "transparent", marginHorizontal: 10 }}
               onPress={() => {
-                this.editItem()
+                navigation.navigate("EditItem", { item: navigation.getParam("item") })
               }}
             />
           }

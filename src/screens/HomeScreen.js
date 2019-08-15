@@ -50,7 +50,7 @@ export default class HomeScreen extends Component {
     if (data.data !== this.state.lastScan) {
       this.setState({ lastScan: data.data }, () => {
         Vibration.vibrate(500);
-        firebase.database().ref("items/").child(data.data).once("value", snapshot => {
+        firebase.database().ref("items/").orderByChild("QRCodeURL").equalTo(data.data).once("value", snapshot => {
           if (snapshot.val())
             this.props.navigation.navigate("Loading", { data: snapshot.val() });
         });
