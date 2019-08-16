@@ -24,6 +24,12 @@ export default class AdminControlPanelScreen extends Component {
 
   componentDidMount = () => {
     this._isMounted = true;
+    let user = firebase.auth().currentUser;
+    firebase.database().ref("users/").child(user.uid).once("value", snapshot => {
+      if (snapshot.val() && this._isMounted) {
+        this.setState({ user, userData: snapshot.val() });
+      }
+    });
   }
 
   componentWillUnmount = () => {
@@ -32,9 +38,13 @@ export default class AdminControlPanelScreen extends Component {
 
   fetchUsers = () => {
     if (this._isMounted)
-      firebase.database().ref("users/").on("value", async snapshot => {
-        if (!snapshot.val() || !this._isMounted)
+      firebase.database().ref("users/").once("value", async snapshot => {
+        if (!snapshot.val() || snapshot.numChildren() === 1 || !this._isMounted) {
+          this.setState({ userList: [] }, () => {
+            this.setState({ loading: false });
+          })
           return;
+        }
         let userArray = [];
         let userObj = snapshot.val();
         for (let key of Object.keys(userObj)) {
@@ -49,11 +59,16 @@ export default class AdminControlPanelScreen extends Component {
             });
           }).then(async data => {
             await firebase.database().ref("users/").child(key).once("value", ss => {
-              if (!ss.val() || !this._isMounted)
-                return;
-              userObj[key].admin = ss.val().admin;
-              userObj[key].emailVerified = data.emailVerified;
-              userObj[key].email = data.email;
+              if (ss.val() && this._isMounted) {
+                userObj[key].admin = ss.val().admin;
+                userObj[key].emailVerified = data.emailVerified;
+                userObj[key].email = data.email;
+                if (ss.val().userID === this.state.userData.userID) {
+                  userObj[key].visible = false;
+                } else {
+                  userObj[key].visible = true;
+                }
+              }
             });
           });
         }
@@ -66,8 +81,8 @@ export default class AdminControlPanelScreen extends Component {
 
   keyExtractor = (item, index) => index.toString()
 
-  renderItem = ({ item }) =>
-    <ListItem
+  renderItem = ({ item }) => {
+    return (item.visible === true && <ListItem
       onPress={() => {
         this.props.navigation.navigate("UserPanel", { userData: item });
       }}
@@ -87,7 +102,8 @@ export default class AdminControlPanelScreen extends Component {
       }
       rightContentContainerStyle={{ display: "flex", flex: 1, flexDirection: "row", justifyContent: "flex-start" }}
       leftAvatar={{ source: { uri: item.imageURL }, size: "medium" }}
-    />
+    />)
+  }
 
   updateSearch = search => {
     this.setState({ search }, () => {
@@ -124,6 +140,12 @@ export default class AdminControlPanelScreen extends Component {
         />
         <FlatList
           style={{ margin: 3 }}
+          ListEmptyComponent=
+            {!this.state.loading &&
+              <View style={{ display: "flex", justifyContent: "center", alignItems: "center", marginTop: 15 }}>
+                <Text style={{ textAlign: "center", color: "#fff", fontFamily: "Montserrat-ExtraBold" }}>There aren't any users registered.</Text>
+              </View>
+            }
           refreshControl={
             <RefreshControl
               refreshing={this.state.loading}

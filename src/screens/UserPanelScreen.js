@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Text, View, StatusBar, TouchableOpacity, Keyboard, TextInput, StyleSheet, Image } from "react-native";
+import { Text, View, StatusBar, TouchableOpacity, Keyboard, TextInput, StyleSheet, Image, Alert } from "react-native";
 import ImagePicker from "react-native-image-picker";
 import firebase from "react-native-firebase";
 import Header from "../components/Header";
@@ -32,7 +32,66 @@ export default class UserPanelScreen extends Component {
 
   static navigationOptions = ({ navigation }) => {
     return {
-      header: <Header userPanel userData={navigation.getParam("userData")} back={() => navigation.goBack()} />,
+      header: <Header userPanel deleteUser={() => {
+        let deleteUser = firebase.functions().httpsCallable("deleteUser");
+        let viewedUserData = navigation.getParam("userData");
+        Alert.alert(
+          "Confirm Deletion",
+          "Are you sure you want to delete this account?\n\nThis will delete all items this user has made.",
+          [
+            { text: "Cancel", style: "cancel" },
+            { text: "Yes", onPress: () => {
+              deleteUser({uid: viewedUserData.userID}).then(() => {
+                firebase.storage().ref("profileImages/").child(viewedUserData.userID).delete().then(() => {
+                  firebase.database().ref("users/").child(viewedUserData.userID).remove().then(() => {
+                    firebase.database().ref("items/").once("value", snapshot => {
+                      if (snapshot.val()) {
+                        let delItems = () => new Promise((resolve, reject) => {
+                          for (item of snapshot.val()) {
+                            if (item.added_by_uid === viewedUserData.userID) {
+                              firebase.database().ref("items/").child(item.itemID).remove().catch(error => {
+                                alert(error);
+                                reject();
+                              });
+                            }
+                          }
+                          resolve();
+                        });
+                        delItems().then(() => {
+                          navigation.navigate("AdminControlPanel");
+                        });
+                      }
+                    });
+                  });
+                }).catch(() => {
+                  firebase.database().ref("users/").child(viewedUserData.userID).remove().then(() => {
+                    firebase.database().ref("items/").once("value", snapshot => {
+                      if (snapshot.val()) {
+                        let delItems = () => new Promise((resolve, reject) => {
+                          for (item of Object.values(snapshot.val())) {
+                            if (item.added_by_uid === viewedUserData.userID) {
+                              firebase.database().ref("items/").child(item.itemID).remove().catch(error => {
+                                alert(error);
+                                reject();
+                              });
+                            }
+                          }
+                          resolve();
+                        });
+                        delItems().then(() => {
+                          navigation.navigate("AdminControlPanel");
+                        });
+                      }
+                    });
+                  });
+                });
+              }).catch(error => {
+                alert(error);
+              });
+            }}
+          ]
+        )
+      }} userData={navigation.getParam("userData")} back={() => navigation.goBack()} />,
       headerStyle: {
         backgroundColor: "#065471"
       },

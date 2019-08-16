@@ -141,7 +141,7 @@ export class ProfileScreen extends Component {
           }
         },
         {
-          title: <Text style={{ textAlign: "center", fontSize: 20, color: "#27ae60" }}>Admin Control Panel</Text>,
+          title: <Text style={{ textAlign: "center", fontSize: 20, color: "#9b59b6" }}>Manage Users</Text>,
           mustBeVerified: true,
           mustBeAdmin: true,
           icon: "settings",
