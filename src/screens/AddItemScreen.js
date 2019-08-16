@@ -81,7 +81,7 @@ export default class AddItemScreen extends Component {
     firebase.database().ref("users/").child(user.uid).once("value", snapshot => {
       if (!snapshot.val())
         return;
-        userData = snapshot.val();
+      userData = snapshot.val();
     }).then(() => {
       let itemID = uuid();
       let QRCodeID = uuid().slice(0, 17);
@@ -98,7 +98,8 @@ export default class AddItemScreen extends Component {
             QRCodeURL: QRCodeID,
             location: credentials.location,
             searchQuery: credentials.title.toLowerCase(),
-            title: credentials.title
+            title: credentials.title,
+            itemID: itemID
           }).then(() => {
             this.props.navigation.navigate("Items");
           }).catch(error => {
@@ -116,7 +117,8 @@ export default class AddItemScreen extends Component {
           QRCodeURL: QRCodeID,
           location: credentials.location,
           searchQuery: credentials.title.toLowerCase(),
-          title: credentials.title
+          title: credentials.title,
+          itemID: itemID
         }).then(() => {
           this.props.navigation.navigate("Items");
         });

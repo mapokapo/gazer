@@ -13,6 +13,7 @@ export default class HomeScreen extends Component {
       renderBox: false,
       lastScan: ""
     };
+    this._isMounted = false;
   }
 
   static navigationOptions = {
@@ -20,30 +21,38 @@ export default class HomeScreen extends Component {
   };
 
   componentDidMount() {
+    this._isMounted = true;
     setTimeout(() => {
-      this.setState({ renderBox: true });
+      if (this._isMounted)
+        this.setState({ renderBox: true });
     }, 1000);
-    this.setState({ screenWidth: Dimensions.get("window").width });
-    Animated.loop(
-      Animated.sequence(
-        [
-          Animated.timing(
-            this.state.cameraBoxOpacity,
-            {
-              toValue: 0.75,
-              duration: 750
-            }
-          ),
-          Animated.timing(
-            this.state.cameraBoxOpacity,
-            {
-              toValue: 1,
-              duration: 750
-            }
-          )
-        ]
-      )
-    ).start();
+    if (this._isMounted) {
+      this.setState({ screenWidth: Dimensions.get("window").width });
+      Animated.loop(
+        Animated.sequence(
+          [
+            Animated.timing(
+              this.state.cameraBoxOpacity,
+              {
+                toValue: 0.75,
+                duration: 750
+              }
+            ),
+            Animated.timing(
+              this.state.cameraBoxOpacity,
+              {
+                toValue: 1,
+                duration: 750
+              }
+            )
+          ]
+        )
+      ).start();
+    }
+  }
+
+  componentWillUnmount() {
+    this._isMounted = false;
   }
 
   handleQRScan = data => {
@@ -51,7 +60,7 @@ export default class HomeScreen extends Component {
       this.setState({ lastScan: data.data }, () => {
         Vibration.vibrate(500);
         firebase.database().ref("items/").orderByChild("QRCodeURL").equalTo(data.data).once("value", snapshot => {
-          if (snapshot.val())
+          if (snapshot.val() && this._isMounted)
             this.props.navigation.navigate("Loading", { data: snapshot.val() });
         });
       });

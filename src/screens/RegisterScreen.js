@@ -85,21 +85,22 @@ export default class SignInScreen extends Component {
       user.user.updateProfile({
         displayName: credentials.name
       });
+      let date = new Date();
+      let year = date.getFullYear().toString().substr(-2);
+      let month = (date.getMonth() + 1) < 10 ? "0" + (date.getMonth() + 1) : (date.getMonth() + 1);
+      let day = date.getDate() < 10 ? "0" + date.getDate() : date.getDate();
+      let formattedDate = year + "-" + month + "-" + day;
       if (this.state.image !== null) {
         let ref = firebase.storage().ref("profileImages/").child(user.user.uid);
         let ext = this.state.image.path.split(".")[1];
         ref.putFile(this.state.image.path, { contentType: `image/${ext}` })
         .then(item => {
-          let date = new Date();
-          let year = date.getFullYear().toString().substr(-2);
-          let month = (date.getMonth() + 1) < 10 ? "0" + (date.getMonth() + 1) : (date.getMonth() + 1);
-          let day = date.getDate() < 10 ? "0" + date.getDate() : date.getDate();
-          let formattedDate = year + "-" + month + "-" + day;
           firebase.database().ref("users/" + user.user.uid).set({
             displayName: credentials.name,
             imageURL: item.downloadURL,
             admin: 0,
-            joined: formattedDate
+            joined: formattedDate,
+            userID: user.user.uid
           }).then(() => {
             this.props.navigation.navigate("EmailVerification", { data: { imageURL: item.downloadURL, email: user.user.email } });
           });
@@ -110,7 +111,9 @@ export default class SignInScreen extends Component {
         firebase.database().ref("users/" + user.user.uid).set({
           displayName: credentials.name,
           imageURL: this.state.profileImageURL,
-          admin: 0
+          admin: 0,
+          joined: formattedDate,
+          userID: user.user.uid
         }).then(() => {
           this.props.navigation.navigate("EmailVerification", { data: { imageURL: this.state.profileImageURL, email: user.user.email } });
         });

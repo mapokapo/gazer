@@ -2,6 +2,15 @@ import React, { Component } from 'react'
 import { View, TouchableOpacity, Image, Keyboard, StyleSheet, TextInput } from 'react-native'
 import { Button } from 'react-native-elements';
 import ImagePicker from "react-native-image-picker";
+import firebase from "react-native-firebase";
+
+const options = {
+  title: 'Select Image',
+  storageOptions: {
+    skipBackup: true,
+    path: 'images',
+  },
+}
 
 export default class ItemEditScreen extends Component {
   constructor(props) {
@@ -26,6 +35,62 @@ export default class ItemEditScreen extends Component {
     title: "Edit Item"
   }
 
+  addItem = credentials => {
+    let user = firebase.auth().currentUser;
+    let userData;
+    let date = new Date();
+    let year = date.getFullYear().toString().substr(-2);
+    let month = (date.getMonth() + 1) < 10 ? "0" + (date.getMonth() + 1) : (date.getMonth() + 1);
+    let day = date.getDate() < 10 ? "0" + date.getDate() : date.getDate();
+    let formattedDate = year + "-" + month + "-" + day;
+    firebase.database().ref("users/").child(user.uid).once("value", snapshot => {
+      if (!snapshot.val())
+        return;
+      userData = snapshot.val();
+    }).then(() => {
+      let itemID = credentials.item.itemID;
+      let QRCodeID = credentials.item.QRCodeID;
+      if (this.state.image !== null) {
+        let ref = firebase.storage().ref("itemImages/").child(itemID);
+        let ext = this.state.image.path.split(".")[1];
+        ref.putFile(this.state.image.path, { contentType: `image/${ext}` })
+        .then(item => {
+          firebase.database().ref("items/" + itemID).set({
+            added_by: userData.displayName,
+            added_by_uid: user.uid,
+            added_on: formattedDate,
+            imageURL: item.downloadURL,
+            QRCodeURL: QRCodeID,
+            location: credentials.location,
+            searchQuery: credentials.title.toLowerCase(),
+            title: credentials.title,
+            itemID: itemID
+          }).then(() => {
+            this.props.navigation.navigate("Items");
+          }).catch(error => {
+            alert(error);
+          });
+        }).catch(error => {
+          alert(error)
+        });
+      } else {
+        firebase.database().ref("items/" +itemID).set({
+          added_by: userData.displayName,
+          added_by_uid: user.uid,
+          added_on: formattedDate,
+          imageURL: this.state.itemImageURL,
+          QRCodeURL: QRCodeID,
+          location: credentials.location,
+          searchQuery: credentials.title.toLowerCase(),
+          title: credentials.title,
+          itemID: itemID
+        }).then(() => {
+          this.props.navigation.navigate("Items");
+        });
+      }
+    });
+  }
+
   updateItem = () => {
     let flag = "";
     let keys = Object.keys(this.state);
@@ -36,7 +101,7 @@ export default class ItemEditScreen extends Component {
     }
     if (flag === "") {
       this.setState({ warn: "" });
-      this.props.addItem(this.state);
+      this.addItem(this.state);
     } else {
       this.setState({ warn: flag });
     }

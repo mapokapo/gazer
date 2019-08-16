@@ -15,32 +15,45 @@ export default class AdminControlPanelScreen extends Component {
       user: "",
       getUser: firebase.functions().httpsCallable("getUser")
     }
+    this._isMounted = false;
   }
 
   static navigationOptions = {
     header: null
   };
 
+  componentDidMount = () => {
+    this._isMounted = true;
+  }
+
+  componentWillUnmount = () => {
+    this._isMounted = false;
+  }
+
   fetchUsers = () => {
-    firebase.database().ref("users/").on("value", async snapshot => {
-      if (!snapshot.val())
-        return;
+    if (this._isMounted)
+      firebase.database().ref("users/").on("value", async snapshot => {
+        if (!snapshot.val() || !this._isMounted)
+          return;
         let userArray = [];
         let userObj = snapshot.val();
         for (let key of Object.keys(userObj)) {
           await new Promise((resolve, reject) => {
             this.state.getUser({ uid: key }).then(userRecord => {
-              resolve(userRecord.data.emailVerified);
+              if (this._isMounted)
+                resolve(userRecord.data);
+              else reject();
             }).catch(error => {
               alert(error);
               reject();
             });
-          }).then(async emailVerified => {
+          }).then(async data => {
             await firebase.database().ref("users/").child(key).once("value", ss => {
-              if (!ss.val())
+              if (!ss.val() || !this._isMounted)
                 return;
               userObj[key].admin = ss.val().admin;
-              userObj[key].emailVerified = emailVerified;
+              userObj[key].emailVerified = data.emailVerified;
+              userObj[key].email = data.email;
             });
           });
         }
@@ -48,7 +61,7 @@ export default class AdminControlPanelScreen extends Component {
         this.setState({ userList: userArray }, () => {
           this.setState({ loading: false });
         })
-    });
+      });
   }
 
   keyExtractor = (item, index) => index.toString()
@@ -92,8 +105,10 @@ export default class AdminControlPanelScreen extends Component {
         <StatusBar backgroundColor="#065471" barStyle="light-content" />
         <NavigationEvents
           onDidFocus={() => {
-            this.fetchUsers()
-            this.setState({ user: this.props.navigation.getParam("user") , userData: this.props.navigation.getParam("userData") });
+            if (this._isMounted) {
+              this.fetchUsers()
+              this.setState({ user: this.props.navigation.getParam("user") , userData: this.props.navigation.getParam("userData") });
+            }
           }}
         />
         <SearchBar

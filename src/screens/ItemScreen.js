@@ -13,6 +13,7 @@ export default class ItemScreen extends Component {
       buttonWidth: 0,
       buttonHeight: 0
     }
+    this._isMounted = false;
   }
 
   static navigationOptions = ({ navigation }) => {
@@ -45,8 +46,8 @@ export default class ItemScreen extends Component {
                   [
                     { text: "Cancel", style: "cancel" },
                     { text: "Yes", onPress: () => {
-                      firebase.database().ref("items/").child(item.QRCodeURL).remove().then(() => {
-                        firebase.storage().ref("itemImages/").child(item.QRCodeURL).delete().then(() => {
+                      firebase.database().ref("items/").child(item.itemID).remove().then(() => {
+                        firebase.storage().ref("itemImages/").child(item.itemID).delete().then(() => {
                           navigation.navigate("Items");
                         }).catch(() => {
                           navigation.navigate("Items");
@@ -66,13 +67,18 @@ export default class ItemScreen extends Component {
   }
 
   componentDidMount() {
+    this._isMounted = true;
     firebase.auth().onAuthStateChanged(user => {
       if (user)
         firebase.database().ref("users/").child(user.uid).on("value", snapshot => {
-          if (snapshot.val())
+          if (snapshot.val() && this._isMounted)
             this.setState({ userData: snapshot.val(), user });
         })
     });
+  }
+
+  componentWillUnmount() {
+    this._isMounted = false;
   }
 
   render() {

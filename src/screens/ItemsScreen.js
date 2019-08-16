@@ -30,7 +30,7 @@ export default class ItemsScreen extends Component {
         })
     firebase.database().ref("items/").once("value", async snapshot => {
       if (!snapshot.val()) {
-        this.setState({ loading: false })
+        this.setState({ loading: false, list: [] })
         return
       }
       let itemArray = [];
