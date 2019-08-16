@@ -6,7 +6,7 @@ A Utility Inventory Manager (UIM) Business Mobile App
 
 **To-Do:**
 
-<span style="color: #0f0">**Finished!**</span>.
+<span style="color: #0f0, font-weight: bold">Finished!</span>.
 
 - [x] Register Firebase account and setup work environment
 - [x] Make basic App template/skeleton
