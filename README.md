@@ -6,6 +6,8 @@ A Utility Inventory Manager (UIM) Business Mobile App
 
 **To-Do:**
 
+<span style="color: #0f0, font-weight: bold">Finished!</span>.
+
 - [x] Register Firebase account and setup work environment
 - [x] Make basic App template/skeleton
 - [x] Implement the screens from the general design of the App
@@ -17,12 +19,12 @@ A Utility Inventory Manager (UIM) Business Mobile App
 - [x] Configure email verification and add email verification screen
 - [x] Implement forgotten password system
 - [x] Implement email-verified-only features for profiles
-- [ ] Add Item display, creation, edition, and deletion system
+- [x] Add Item display, creation, edition, and deletion system
 - [x] Implement search system for items
 - [x] Complete QR Code Scanner for items
 - [x] Implement Admin profiles
 - [x] Add Admin Control Panel
-- [ ] Polish app (broad)  
+- [x] Polish app (broad)  
 
 **Sample Images from App**
 
