@@ -27,7 +27,8 @@ export default class AddItemScreen extends Component {
       smallTextButtonMargin: 3,
       itemImageURL: "https://firebasestorage.googleapis.com/v0/b/uim3-8b4ac.appspot.com/o/itemImages%2Fitem_box.png?alt=media&token=7d300e38-55b6-42b6-9e04-f842f16448f3",
       QRCodeURL: "",
-      image: null
+      image: null,
+      canBePressed: true
     }
   }
 
@@ -71,59 +72,67 @@ export default class AddItemScreen extends Component {
   }
 
   addItem = credentials => {
-    let user = firebase.auth().currentUser;
-    let userData;
-    let date = new Date();
-    let year = date.getFullYear().toString().substr(-2);
-    let month = (date.getMonth() + 1) < 10 ? "0" + (date.getMonth() + 1) : (date.getMonth() + 1);
-    let day = date.getDate() < 10 ? "0" + date.getDate() : date.getDate();
-    let formattedDate = year + "-" + month + "-" + day;
-    firebase.database().ref("users/").child(user.uid).once("value", snapshot => {
-      if (!snapshot.val())
-        return;
-      userData = snapshot.val();
-    }).then(() => {
-      let itemID = uuid();
-      let QRCodeID = uuid().slice(0, 17);
-      if (this.state.image !== null) {
-        let ref = firebase.storage().ref("itemImages/").child(itemID);
-        let ext = this.state.image.path.split(".")[1];
-        ref.putFile(this.state.image.path, { contentType: `image/${ext}` })
-        .then(item => {
-          firebase.database().ref("items/" + itemID).set({
-            added_by: userData.displayName,
-            added_by_uid: user.uid,
-            added_on: formattedDate,
-            imageURL: item.downloadURL,
-            QRCodeURL: QRCodeID,
-            location: credentials.location,
-            searchQuery: credentials.title.toLowerCase(),
-            title: credentials.title,
-            itemID: itemID
-          }).then(() => {
-            this.props.navigation.navigate("Items");
-          }).catch(error => {
-            alert(error);
-          });
-        }).catch(error => {
-          alert(error)
-        });
-      } else {
-        firebase.database().ref("items/" +itemID).set({
-          added_by: userData.displayName,
-          added_by_uid: user.uid,
-          added_on: formattedDate,
-          imageURL: this.state.itemImageURL,
-          QRCodeURL: QRCodeID,
-          location: credentials.location,
-          searchQuery: credentials.title.toLowerCase(),
-          title: credentials.title,
-          itemID: itemID
+    if (this.state.canBePressed) {
+      this.setState({ canBePressed: false }, () => {
+        let user = firebase.auth().currentUser;
+        let userData;
+        let date = new Date();
+        let year = date.getFullYear().toString().substr(-2);
+        let month = (date.getMonth() + 1) < 10 ? "0" + (date.getMonth() + 1) : (date.getMonth() + 1);
+        let day = date.getDate() < 10 ? "0" + date.getDate() : date.getDate();
+        let formattedDate = year + "-" + month + "-" + day;
+        firebase.database().ref("users/").child(user.uid).once("value", snapshot => {
+          if (!snapshot.val())
+            return;
+          userData = snapshot.val();
         }).then(() => {
-          this.props.navigation.navigate("Items");
+          let itemID = uuid();
+          let QRCodeID = uuid().slice(0, 17);
+          if (this.state.image !== null) {
+            let ref = firebase.storage().ref("itemImages/").child(itemID);
+            let ext = this.state.image.path.split(".")[1];
+            ref.putFile(this.state.image.path, { contentType: `image/${ext}` })
+            .then(item => {
+              firebase.database().ref("items/" + itemID).set({
+                added_by: userData.displayName,
+                added_by_uid: user.uid,
+                added_on: formattedDate,
+                imageURL: item.downloadURL,
+                QRCodeURL: QRCodeID,
+                location: credentials.location,
+                searchQuery: credentials.title.toLowerCase(),
+                title: credentials.title,
+                itemID: itemID
+              }).then(() => {
+                this.setState({ canBePressed: true }, () => {
+                  this.props.navigation.navigate("Items");
+                });
+              }).catch(error => {
+                alert(error);
+              });
+            }).catch(error => {
+              alert(error)
+            });
+          } else {
+            firebase.database().ref("items/" +itemID).set({
+              added_by: userData.displayName,
+              added_by_uid: user.uid,
+              added_on: formattedDate,
+              imageURL: this.state.itemImageURL,
+              QRCodeURL: QRCodeID,
+              location: credentials.location,
+              searchQuery: credentials.title.toLowerCase(),
+              title: credentials.title,
+              itemID: itemID
+            }).then(() => {
+              this.setState({ canBePressed: true }, () => {
+                this.props.navigation.navigate("Items");
+              });
+            });
+          }
         });
-      }
-    });
+      });
+    }
   }
 
   componentDidMount() {

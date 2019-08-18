@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, RefreshControl, FlatList, StatusBar } from "rea
 import { Icon, SearchBar, ListItem, Button } from "react-native-elements";
 import firebase from "react-native-firebase";
 import { NavigationEvents } from "react-navigation";
+import AsyncStorage from "@react-native-community/async-storage";
 
 export default class ItemsScreen extends Component {
   constructor(props) {
@@ -15,49 +16,64 @@ export default class ItemsScreen extends Component {
       user: "",
       getUser: firebase.functions().httpsCallable("getUser")
     }
+    this._isMounted = true;
   }
 
   static navigationOptions = {
     header: null
   };
 
-  fetchItems = () => {
-    let user = firebase.auth().currentUser;
-    if (user)
-        firebase.database().ref("users/").child(user.uid).once("value", snapshot => {
-          if (snapshot.val())
-            this.setState({ userData: snapshot.val(), user });
-        })
-    firebase.database().ref("items/").once("value", async snapshot => {
-      if (!snapshot.val()) {
-        this.setState({ loading: false, list: [] })
-        return
-      }
-      let itemArray = [];
-      let itemObj = snapshot.val();
-      let fetch = () => new Promise((resolve, reject) => {
-        for (let key of Object.keys(itemObj)) {
-          this.state.getUser({ uid: itemObj[key].added_by_uid }).then(userRecord => {
-            firebase.database().ref("users/").child(itemObj[key].added_by_uid).once("value", ss => {
-              if (!ss.val())
-                return;
-              itemObj[key].admin = ss.val().admin;
-              itemObj[key].emailVerified = userRecord.data.emailVerified;
-              resolve();
-            });
-          }).catch(error => {
-            alert(error);
-            reject(error);
-          });
+  componentDidMount = () => {
+    this._isMounted = true;
+  }
+
+  componentWillUnmount() {
+    this._isMounted = false;
+  }
+
+  fetchItems = callback => {
+    if (this._isMounted) {
+      let user = firebase.auth().currentUser;
+      if (user && this._isMounted)
+          firebase.database().ref("users/").child(user.uid).once("value", snapshot => {
+            if (snapshot.val() && this._isMounted)
+              this.setState({ userData: snapshot.val(), user });
+          })
+      firebase.database().ref("items/").once("value", async snapshot => {
+        if (!snapshot.val() || !this._isMounted) {
+          this.setState({ loading: false, list: [] })
+          return
         }
-      });
-      fetch().then(() => {
-        itemArray = Object.values(itemObj);
-        this.setState({ list: itemArray }, () => {
-          this.setState({ loading: false });
+        let itemArray = [];
+        let itemObj = snapshot.val();
+        let fetch = () => new Promise((resolve, reject) => {
+          for (let key of Object.keys(itemObj)) {
+            this.state.getUser({ uid: itemObj[key].added_by_uid }).then(userRecord => {
+              firebase.database().ref("users/").child(itemObj[key].added_by_uid).once("value", ss => {
+                if (!ss.val() || !this._isMounted)
+                  return;
+                itemObj[key].admin = ss.val().admin;
+                itemObj[key].emailVerified = userRecord.data.emailVerified;
+              });
+            }).catch(error => {
+              alert(error);
+              reject(error);
+            });
+          }
+          resolve();
         });
-      }).catch(error => alert(error));
-    });
+        fetch().then(() => {
+          if (this._isMounted) {
+            itemArray = Object.values(itemObj);
+            this.setState({ list: itemArray }, () => {
+              if (callback)
+                callback(itemArray);
+              this.setState({ loading: false });
+            });
+          }
+        }).catch(error => alert(error));
+      });
+    }
   }
 
   keyExtractor = (item, index) => index.toString()
@@ -92,9 +108,17 @@ export default class ItemsScreen extends Component {
       <View style={{ backgroundColor: "#065471", flex: 1 }}>
         <StatusBar backgroundColor="#065471" barStyle="light-content" />
         <NavigationEvents
-          onDidFocus={() => {
-            this.setState({ loading: true }, () => {
-              this.fetchItems();
+          onDidFocus={async () => {
+            await AsyncStorage.getItem("itemsList").then(item => {
+              if (!item)
+                this.setState({ loading: true }, () => {
+                  this.fetchItems(list => {
+                    AsyncStorage.setItem("itemsList", JSON.stringify(list));
+                  });
+                });
+              else {
+                this.setState({ list: JSON.parse(item), loading: false });
+              }
             });
           }}
         />
@@ -120,7 +144,11 @@ export default class ItemsScreen extends Component {
           refreshControl={
             <RefreshControl
               refreshing={this.state.loading}
-              onRefresh={this.fetchItems}
+              onRefresh={() => {
+                this.fetchItems(list => {
+                  AsyncStorage.setItem("itemsList", JSON.stringify(list));
+                })
+              }}
             />
           }
           data={this.state.list}

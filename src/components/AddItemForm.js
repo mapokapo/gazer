@@ -15,6 +15,7 @@ export default class AddItemForm extends Component {
       warn: ""
     };
   }
+  
   render() {
     return (
       <View style={{ display: "flex" }}>

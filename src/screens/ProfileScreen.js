@@ -4,6 +4,8 @@ import { ListItem, Overlay, Button, Input, Icon } from "react-native-elements";
 import firebase from "react-native-firebase";
 import Header from "../components/Header";
 import ImagePicker from 'react-native-image-picker';
+import { NavigationEvents } from "react-navigation";
+import AsyncStorage from "@react-native-community/async-storage";
 
 const options = {
   title: 'Select Avatar',
@@ -154,8 +156,7 @@ export class ProfileScreen extends Component {
         }
       ]
     }
-    this._isMounted = true;
-    this.unsubscribe;
+    this._isMounted = false;
   }
 
   refreshState = () => {
@@ -164,34 +165,29 @@ export class ProfileScreen extends Component {
         reject("An error has occured, try signing out and in");
         return;
       }
-      this.unsubscribe = firebase.auth().onAuthStateChanged(user => {
-        if (user && this._isMounted) {
-          firebase.database().ref("users/" + user.uid).once("value", snapshot => {
-            if (snapshot.val() && this._isMounted)
-              this.setState({ userData: snapshot.val(), user: user, loading: false }, () => {
-                resolve(this.state);
-              });
-          });
-        } else {
-          if (this._isMounted) {
-            reject("An error has occured, try signing out and in");
-          }
+      let user = firebase.auth().currentUser;
+      if (user && this._isMounted) {
+        firebase.database().ref("users/" + user.uid).once("value", snapshot => {
+          if (snapshot.val() && this._isMounted)
+            this.setState({ userData: snapshot.val(), user: user, loading: false }, () => {
+              resolve(this.state);
+            });
+        });
+      } else {
+        if (this._isMounted) {
+          reject("An error has occured, try signing out and in");
         }
-      });
+      }
     })
   }
 
   componentDidMount() {
     this._isMounted = true;
-    if (this._isMounted)
-      this.refreshState().catch(error => {
-        alert(error);
-      });
   }
+
 
   componentWillUnmount() {
     this._isMounted = false;
-    this.unsubscribe();
   }
 
   static navigationOptions = {
@@ -277,6 +273,23 @@ export class ProfileScreen extends Component {
   render() {
     return (
       <View style={{ backgroundColor: "#fff", flex: 1 }}>
+        <NavigationEvents
+          onDidFocus={() => {
+            AsyncStorage.getItem("profileLoad").then(item => {
+              if (!item) {
+                this.setState({ loading: true }, () => {
+                  this.refreshState().then(state => {
+                    AsyncStorage.setItem("profileLoad", JSON.stringify({ userData: state.userData, user: state.user }));
+                  });
+                });
+              } else {
+                AsyncStorage.getItem("profileLoad").then(item1 => {
+                  this.setState({ userData: JSON.parse(item1).userData, user: JSON.parse(item1).user, loading: false });
+                })
+              }
+            });
+          }}
+        />
         <StatusBar backgroundColor="#065471" barStyle="light-content" />
         <Overlay
           width={Dimensions.get("window").width/100*70}
@@ -329,10 +342,11 @@ export class ProfileScreen extends Component {
           refreshControl={
             <RefreshControl
               refreshing={this.state.loading}
-              onRefresh={this.refreshState}
+              onRefresh={() => {this.refreshState()}}
             />
           }
         />
+        <Text style={{ textAlign: "center", color: "#444" }}>Made by Leo Petrović</Text>
       </View>
     )
   }
