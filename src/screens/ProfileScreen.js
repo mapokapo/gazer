@@ -49,9 +49,12 @@ export class ProfileScreen extends Component {
                   let ext = response.path.split(".")[1];
                   ref.putFile(response.path, { contentType: `image/${ext}` })
                   .then(item => {
+                    let imageDownloadURL = item.downloadURL.split("?");
+                    imageDownloadURL[0] += ".webp?";
+                    imageDownloadURL = imageDownloadURL.join("");
                     firebase.database().ref("users/" + state.user.uid).set({
                       displayName: state.userData.displayName,
-                      imageURL: item.downloadURL,
+                      imageURL: imageDownloadURL,
                       joined: state.userData.joined,
                       admin: state.userData.admin
                     }).then(() => {
@@ -60,6 +63,7 @@ export class ProfileScreen extends Component {
                         ToastAndroid.SHORT,
                         ToastAndroid.BOTTOM
                       );
+                      AsyncStorage.removeItem("profileLoad");
                     });
                   }).catch(error => {
                     alert(error)
@@ -207,7 +211,8 @@ export class ProfileScreen extends Component {
           "Name Changed",
           ToastAndroid.SHORT,
           ToastAndroid.BOTTOM
-        )
+        );
+        AsyncStorage.setItem("profileLoad", JSON.stringify({ userData: state.userData, user: state.user }));
       });
     }).catch(error => alert(error));
   }
@@ -276,17 +281,19 @@ export class ProfileScreen extends Component {
         <NavigationEvents
           onDidFocus={() => {
             AsyncStorage.getItem("profileLoad").then(item => {
-              if (!item) {
-                this.setState({ loading: true }, () => {
-                  this.refreshState().then(state => {
-                    AsyncStorage.setItem("profileLoad", JSON.stringify({ userData: state.userData, user: state.user }));
+              if (this._isMounted) {
+                if (!item) {
+                  this.setState({ loading: true }, () => {
+                    this.refreshState().then(state => {
+                      AsyncStorage.setItem("profileLoad", JSON.stringify({ userData: state.userData, user: state.user }));
+                    });
                   });
-                });
-              } else {
-                AsyncStorage.getItem("profileLoad").then(item1 => {
-                  this.setState({ userData: JSON.parse(item1).userData, user: JSON.parse(item1).user, loading: false });
-                })
-              }
+                } else {
+                  AsyncStorage.getItem("profileLoad").then(item1 => {
+                    this.setState({ userData: JSON.parse(item1).userData, user: JSON.parse(item1).user, loading: false });
+                  })
+                }
+            }
             });
           }}
         />
@@ -342,7 +349,13 @@ export class ProfileScreen extends Component {
           refreshControl={
             <RefreshControl
               refreshing={this.state.loading}
-              onRefresh={() => {this.refreshState()}}
+              onRefresh={() => {
+                this.refreshState().then(state => {
+                  AsyncStorage.removeItem("profileLoad").then(() => {
+                    AsyncStorage.setItem("profileLoad", JSON.stringify({ userData: state.userData, user: state.user }));
+                  });
+                });
+              }}
             />
           }
         />

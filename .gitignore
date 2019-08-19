@@ -57,3 +57,7 @@ buck-out/
 
 # CocoaPods
 /ios/Pods/
+
+# Custom
+android/app/google-services.json
+uim3-8b4ac-94eb82ac36af.json

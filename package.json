@@ -19,6 +19,7 @@
     "react-native-qrcode": "git+https://github.com/mapokapo/react-native-qrcode.git",
     "react-native-reanimated": "^1.1.0",
     "react-native-vector-icons": "^6.6.0",
+    "react-native-webp-support": "TGPSKI/react-native-webp-support",
     "react-native-webview": "^6.7.0",
     "react-native-webview-leaflet": "^4.3.4",
     "react-navigation": "^3.11.1",

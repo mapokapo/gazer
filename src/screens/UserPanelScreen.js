@@ -106,9 +106,12 @@ export default class UserPanelScreen extends Component {
       let ext = this.state.image.path.split(".")[1];
       ref.putFile(this.state.image.path, { contentType: `image/${ext}` })
       .then(item => {
+        let imageDownloadURL = item.downloadURL.split("?");
+        imageDownloadURL[0] += ".webp?";
+        imageDownloadURL = imageDownloadURL.join("");
         firebase.database().ref("users/" + userID).set({
           displayName: credentials.displayName,
-          imageURL: item.downloadURL,
+          imageURL: imageDownloadURL,
           admin: credentials.viewedUserData.admin,
           joined: credentials.viewedUserData.joined,
           userID: credentials.viewedUserData.userID

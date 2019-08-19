@@ -16,7 +16,7 @@ export default class ItemsScreen extends Component {
       user: "",
       getUser: firebase.functions().httpsCallable("getUser")
     }
-    this._isMounted = true;
+    this._isMounted = false;
   }
 
   static navigationOptions = {
@@ -110,14 +110,16 @@ export default class ItemsScreen extends Component {
         <NavigationEvents
           onDidFocus={async () => {
             await AsyncStorage.getItem("itemsList").then(item => {
-              if (!item)
-                this.setState({ loading: true }, () => {
-                  this.fetchItems(list => {
-                    AsyncStorage.setItem("itemsList", JSON.stringify(list));
+              if (this._isMounted) {
+                if (!item)
+                  this.setState({ loading: true }, () => {
+                    this.fetchItems(list => {
+                      list.length !== 0 ? AsyncStorage.setItem("itemsList", JSON.stringify(list)) : AsyncStorage.removeItem("itemsList");
+                    });
                   });
-                });
-              else {
-                this.setState({ list: JSON.parse(item), loading: false });
+                else {
+                  this.setState({ list: JSON.parse(item), loading: false });
+                }
               }
             });
           }}
@@ -146,7 +148,10 @@ export default class ItemsScreen extends Component {
               refreshing={this.state.loading}
               onRefresh={() => {
                 this.fetchItems(list => {
-                  AsyncStorage.setItem("itemsList", JSON.stringify(list));
+                  AsyncStorage.removeItem("itemsList").then(() => {
+                    if (list.length !== 0)
+                      AsyncStorage.setItem("itemsList", JSON.stringify(list));
+                  });
                 })
               }}
             />

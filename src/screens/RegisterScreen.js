@@ -95,14 +95,17 @@ export default class SignInScreen extends Component {
         let ext = this.state.image.path.split(".")[1];
         ref.putFile(this.state.image.path, { contentType: `image/${ext}` })
         .then(item => {
+          let imageDownloadURL = item.downloadURL.split("?");
+          imageDownloadURL[0] += ".webp?";
+          imageDownloadURL = imageDownloadURL.join("");
           firebase.database().ref("users/" + user.user.uid).set({
             displayName: credentials.name,
-            imageURL: item.downloadURL,
+            imageURL: imageDownloadURL,
             admin: 0,
             joined: formattedDate,
             userID: user.user.uid
           }).then(() => {
-            this.props.navigation.navigate("EmailVerification", { data: { imageURL: item.downloadURL, email: user.user.email } });
+            this.props.navigation.navigate("EmailVerification", { data: { imageURL: imageDownloadURL, email: user.user.email } });
           });
         }).catch(error => {
           alert(error)

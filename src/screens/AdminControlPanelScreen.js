@@ -3,6 +3,7 @@ import { View, Text, RefreshControl, FlatList, StatusBar } from "react-native";
 import { Icon, SearchBar, ListItem } from "react-native-elements";
 import firebase from "react-native-firebase";
 import { NavigationEvents } from "react-navigation";
+import AsyncStorage from "@react-native-community/async-storage";
 
 export default class AdminControlPanelScreen extends Component {
   constructor(props) {
@@ -36,13 +37,11 @@ export default class AdminControlPanelScreen extends Component {
     this._isMounted = false;
   }
 
-  fetchUsers = () => {
+  fetchUsers = callback => {
     if (this._isMounted)
       firebase.database().ref("users/").once("value", async snapshot => {
         if (!snapshot.val() || snapshot.numChildren() === 1 || !this._isMounted) {
-          this.setState({ userList: [] }, () => {
-            this.setState({ loading: false });
-          })
+          this.setState({ userList: [], loading: false })
           return;
         }
         let userArray = [];
@@ -73,9 +72,7 @@ export default class AdminControlPanelScreen extends Component {
           });
         }
         userArray = Object.values(userObj);
-        this.setState({ userList: userArray }, () => {
-          this.setState({ loading: false });
-        })
+        this.setState({ userList: userArray, loading: false }, () => callback(userArray) );
       });
   }
 
@@ -122,7 +119,20 @@ export default class AdminControlPanelScreen extends Component {
         <NavigationEvents
           onDidFocus={() => {
             if (this._isMounted) {
-              this.fetchUsers()
+              AsyncStorage.getItem("adminLoad").then(item => {
+                if (!item)
+                  this.setState({ loading: true }, () => {
+                    this.fetchUsers(users => {
+                      alert(users);
+                      users.length !== 0 ? AsyncStorage.setItem("adminLoad", JSON.stringify(users)) : AsyncStorage.removeItem("adminLoad");
+                    });
+                  });
+                else {
+                  AsyncStorage.getItem("adminLoad").then(item1 => {
+                    this.setState({ userList: JSON.parse(item1).users, loading: false });
+                  })
+                }
+              });
               this.setState({ user: this.props.navigation.getParam("user") , userData: this.props.navigation.getParam("userData") });
             }
           }}
@@ -149,7 +159,14 @@ export default class AdminControlPanelScreen extends Component {
           refreshControl={
             <RefreshControl
               refreshing={this.state.loading}
-              onRefresh={this.fetchUsers}
+              onRefresh={() => {
+                this.fetchUsers(users => {
+                  AsyncStorage.removeItem("adminLoad").then(() => {
+                    if (users.length !== 0)
+                      AsyncStorage.setItem("adminLoad", JSON.stringify(users));
+                  });
+                });
+              }}
             />
           }
           data={this.state.userList}

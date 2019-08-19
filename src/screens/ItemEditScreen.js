@@ -55,11 +55,14 @@ export default class ItemEditScreen extends Component {
         let ext = this.state.image.path.split(".")[1];
         ref.putFile(this.state.image.path, { contentType: `image/${ext}` })
         .then(item => {
+          let imageDownloadURL = item.downloadURL.split("?");
+          imageDownloadURL[0] += ".webp?";
+          imageDownloadURL = imageDownloadURL.join("");
           firebase.database().ref("items/" + itemID).set({
             added_by: userData.displayName,
             added_by_uid: user.uid,
             added_on: formattedDate,
-            imageURL: item.downloadURL,
+            imageURL: imageDownloadURL,
             QRCodeURL: QRCodeID,
             location: credentials.location,
             searchQuery: credentials.title.toLowerCase(),
