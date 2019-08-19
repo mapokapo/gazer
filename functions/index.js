@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
@@ -6,20 +6,29 @@ const { tmpdir } = require("os");
 const { join, dirname } = require("path");
 const sharp = require("sharp");
 const fs = require("fs-extra");
+const UUID = require("uuid-v4");
 
-admin.initializeApp();
+admin.initializeApp({
+  credential: admin.credential.applicationDefault(),
+  databaseURL: "https://uim3-8b4ac.firebaseio.com"
+});
 
 exports.imageToWebP = functions.storage.object().onFinalize(async object => {
   const bucket = admin.storage().bucket(object.bucket);
   const filePath = object.name;
-  const fileName = filePath.split('/').pop();
+  const fileName = filePath.split("/").pop();
   const bucketDir = dirname(filePath);
 
-  const workingDir = join(tmpdir(), 'thumbs');
+  const workingDir = join(tmpdir(), "temp");
   const tmpFilePath = join(workingDir, fileName);
 
-  if (object.contentType.startsWith("image/webp") || !object.contentType.includes('image')) {
-    console.log('exiting function');
+  if (object.contentType.startsWith("image/webp")) {
+    console.log("Image already a WebP");
+    return false;
+  }
+
+  if (!object.contentType.includes("image")) {
+    console.log("File not an image");
     return false;
   }
 
@@ -31,22 +40,64 @@ exports.imageToWebP = functions.storage.object().onFinalize(async object => {
     destination: tmpFilePath
   });
 
-  // 3. Resize the images and define an array of upload promises
-  const thumbPath = join(workingDir, fileName);
+  // 3. Convert the image
+  const convertPath = join(workingDir, fileName.split(".").shift() + ".webp");
 
   // Resize source image
   await sharp(tmpFilePath)
     .resize(256, 256)
     .webp()
-    .toFile(thumbPath);
+    .toFile(convertPath);
 
-  // Upload to GCS
-  bucket.upload(thumbPath, {
-    destination: join(bucketDir, thumbName)
+  // Upload to Cloud Storage
+  let newFileName = fileName.split(".").shift();
+  let uuid = UUID();
+  fileName.split(".").length !== 0
+  bucket.upload(convertPath, {
+    destination: join(bucketDir, newFileName + ".webp"),
+    uploadType: "media",
+    metadata: {
+      contentType: 'image/webp',
+      metadata: {
+        firebaseStorageDownloadTokens: uuid
+      }
+    }
+  }).then((data) => {
+    bucket.file(filePath).delete().then(() => {
+      let file = data[0];
+      let itemDownloadURL = "https://firebasestorage.googleapis.com/v0/b/" + bucket.name + "/o/" + encodeURIComponent(file.name) + "?alt=media&token=" + uuid;
+      if (filePath.split("/")[0] === "profileImages") {
+        admin.database().ref("users/").child(newFileName).once("value", snapshot => {
+          if (!snapshot.val())
+            return
+          let data = snapshot.val();
+          admin.database().ref("users/").child(newFileName).set({
+            admin: data.admin,
+            displayName: data.displayName,
+            imageURL: itemDownloadURL,
+            joined: data.joined
+          }).then(() => console.log("Item uploaded, converted, and saved in database successfully"));
+        });
+      } else if (filePath.split("/")[0] === "itemImages") {
+        admin.database().ref("items/").child(newFileName).once("value", snapshot => {
+          if (!snapshot.val())
+            return
+          let data = snapshot.val();
+          admin.database().ref("items/").child(newFileName).set({
+            QRCodeURL: data.QRCodeURL,
+            added_by: data.added_by,
+            added_by_uid: data.added_by_uid,
+            added_on: data.added_on,
+            imageURL: itemDownloadURL,
+            itemID: data.itemID,
+            location: data.location,
+            searchQuery: data.searchQuery,
+            title: data.title
+          }).then(() => console.log("Item uploaded, converted, and saved in database successfully"));
+        });
+      }
+    }).catch(error => console.error(error));
   });
-
-  // 4. Run the upload operations
-  await Promise.all(uploadPromises);
 
   // 5. Cleanup remove the tmp/thumbs from the filesystem
   return fs.remove(workingDir).then(() => {
