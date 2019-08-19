@@ -2,8 +2,6 @@
 
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
-const { Storage } = require("@google-cloud/storage");
-const gcs = new Storage();
 const { tmpdir } = require("os");
 const { join, dirname } = require("path");
 const sharp = require("sharp");
@@ -12,7 +10,7 @@ const fs = require("fs-extra");
 admin.initializeApp();
 
 exports.imageToWebP = functions.storage.object().onFinalize(async object => {
-  const bucket = gcs.bucket(object.bucket); //const bucket = admin.storage().bucket(object.bucket);
+  const bucket = admin.storage().bucket(object.bucket);
   const filePath = object.name;
   const fileName = filePath.split('/').pop();
   const bucketDir = dirname(filePath);
