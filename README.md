@@ -24,6 +24,9 @@ A Utility Inventory Manager (UIM) Business Mobile App
 - [x] Complete QR Code Scanner for items
 - [x] Implement Admin profiles
 - [x] Add Admin Control Panel
+- [x] Compress Images and convert to WebP when uploading to cloud
+- [x] Keep cache of data in lists for less need of re-fetching data
+- [ ] Sanitize user text
 - [ ] Polish app (broad)  
 
 **Sample Images from App**
