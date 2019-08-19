@@ -149,8 +149,11 @@ export default class ItemsScreen extends Component {
               onRefresh={() => {
                 this.fetchItems(list => {
                   AsyncStorage.removeItem("itemsList").then(() => {
-                    if (list.length !== 0)
-                      AsyncStorage.setItem("itemsList", JSON.stringify(list));
+                    if (list.length !== 0) {
+                      AsyncStorage.setItem("itemsList", JSON.stringify(list)).then(() => {
+                        this.setState({ list });
+                      });
+                    }
                   });
                 })
               }}
