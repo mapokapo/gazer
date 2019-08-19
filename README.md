@@ -24,7 +24,7 @@ A Utility Inventory Manager (UIM) Business Mobile App
 - [x] Complete QR Code Scanner for items
 - [x] Implement Admin profiles
 - [x] Add Admin Control Panel
-- [x] Polish app (broad)  
+- [ ] Polish app (broad)  
 
 **Sample Images from App**
 
