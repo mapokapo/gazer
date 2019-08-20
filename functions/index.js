@@ -92,7 +92,8 @@ exports.imageToWebP = functions.storage.object().onFinalize(async object => {
             itemID: data.itemID,
             location: data.location,
             searchQuery: data.searchQuery,
-            title: data.title
+            title: data.title,
+            category: data.category
           }).then(() => console.log("Item uploaded, converted, and saved in database successfully"));
         });
       }
