@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { View, TouchableOpacity, Image, Keyboard, StyleSheet, TextInput } from 'react-native'
+import { View, TouchableOpacity, Image, Keyboard, StyleSheet, TextInput, Picker } from 'react-native'
 import { Button } from 'react-native-elements';
 import ImagePicker from "react-native-image-picker";
 import firebase from "react-native-firebase";
@@ -19,11 +19,46 @@ export default class ItemEditScreen extends Component {
       item: this.props.navigation.getParam("item"),
       title: this.props.navigation.getParam("item").title,
       location: this.props.navigation.getParam("item").location,
+      desc: this.props.navigation.getParam("item").desc,
       itemImageURL: this.props.navigation.getParam("item").imageURL,
       image: null,
       logoSize: 165,
       smallTextButtonMargin: 3,
-      warn: ""
+      warn: "",
+      category: "Other",
+      categories: [
+        "Automotive & Powersports",
+        "Baby Products",
+        "Beauty",
+        "Books",
+        "Camera & Photo",
+        "Cell Phones & Accessories",
+        "Collectible Coins",
+        "Consumer Electronics",
+        "Entertainment Collectibles",
+        "Fine Art",
+        "Grocery & Gourmet Food",
+        "Health & Personal Care",
+        "Home & Garden",
+        "Independent Design",
+        "Industrial & Scientific",
+        "Major Appliances",
+        "Music",
+        "Musical Instruments",
+        "Office Products",
+        "Outdoors",
+        "Personal Computers",
+        "Pet Supplies",
+        "Software",
+        "Sports",
+        "Sports Collectibles",
+        "Tools & Home Improvement",
+        "Toys & Games",
+        "Video, DVD & Blu-ray",
+        "Video Games",
+        "Watches",
+        "Other"
+      ]
     }
   }
 
@@ -67,7 +102,9 @@ export default class ItemEditScreen extends Component {
             location: credentials.location,
             searchQuery: credentials.title.toLowerCase(),
             title: credentials.title,
-            itemID: itemID
+            itemID: itemID,
+            category: credentials.category,
+            desc: credentials.desc
           }).then(() => {
             this.props.navigation.navigate("Items");
           }).catch(error => {
@@ -86,7 +123,9 @@ export default class ItemEditScreen extends Component {
           location: credentials.location,
           searchQuery: credentials.title.toLowerCase(),
           title: credentials.title,
-          itemID: itemID
+          itemID: itemID,
+          category: credentials.category,
+          desc: credentials.desc
         }).then(() => {
           this.props.navigation.navigate("Items");
         });
@@ -98,7 +137,7 @@ export default class ItemEditScreen extends Component {
     let flag = "";
     let keys = Object.keys(this.state);
     for (key of keys) {
-      if ((key === "title" && this.state[key] === "") || (key === "location" && this.state[key] === "")) {
+      if ((key === "title" && this.state[key] === "") || (key === "location" && this.state[key] === "") || (key === "desc" && this.state[key] === "")) {
         flag += key;
       }
     }
@@ -128,6 +167,24 @@ export default class ItemEditScreen extends Component {
         </TouchableOpacity>
         </View>
         <View style={{ display: "flex" }}>
+          <Picker
+            selectedValue={this.state.category}
+            style={{
+              padding: 5,
+              paddingVertical: 30,
+              width: "40%",
+              height: "auto",
+              marginLeft: "auto",
+              marginRight: "auto",
+              color: "#fff"
+            }}
+            onValueChange={(itemValue, itemIndex) =>
+              this.setState({category: itemValue})
+            }>
+            {this.state.categories.map(cat => {
+              return <Picker.Item label={cat} value={cat} key={cat}  />
+            })}
+          </Picker>
           <TextInput
             style={{
               ...styles.textInput,
@@ -139,11 +196,32 @@ export default class ItemEditScreen extends Component {
             returnKeyType="next"
             blurOnSubmit={false}
             value={this.state.title}
-            onSubmitEditing={() => this.locationInput.focus()}
+            onSubmitEditing={() => this.descInput.focus()}
             onChangeText={text => this.setState({ title: text })}
             onFocus={() => {
               let flag = this.state.warn;
               flag = flag.replace("title", "");
+              this.setState({ warn: flag });
+            }}
+          />
+          <TextInput
+            style={{
+              ...styles.textInput,
+              marginVertical: this.props.smallTextButtonMargin + 3,
+              borderColor: this.state.warn.includes("desc") ? "#e74c3c" : "#065471"
+            }}
+            autoCapitalize="sentences"
+            placeholder="Item Description"
+            returnKeyType="next"
+            blurOnSubmit={false}
+            value={this.state.desc}
+            ref={input => (this.descInput = input)}
+            onChangeText={input => {
+              this.setState({ desc: input });
+            }}
+            onFocus={() => {
+              let flag = this.state.warn;
+              flag = flag.replace("desc", "");
               this.setState({ warn: flag });
             }}
           />

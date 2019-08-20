@@ -2,7 +2,8 @@ import React, { Component } from "react";
 import {
   TextInput,
   View,
-  StyleSheet
+  StyleSheet,
+  Picker
 } from "react-native";
 import { Button } from "react-native-elements";
 
@@ -12,13 +13,67 @@ export default class AddItemForm extends Component {
     this.state = {
       title: "",
       location: "",
-      warn: ""
+      desc: "",
+      warn: "",
+      category: "All",
+      categories: [
+        "Automotive & Powersports",
+        "Baby Products",
+        "Beauty",
+        "Books",
+        "Camera & Photo",
+        "Cell Phones & Accessories",
+        "Collectible Coins",
+        "Consumer Electronics",
+        "Entertainment Collectibles",
+        "Fine Art",
+        "Grocery & Gourmet Food",
+        "Health & Personal Care",
+        "Home & Garden",
+        "Independent Design",
+        "Industrial & Scientific",
+        "Major Appliances",
+        "Music",
+        "Musical Instruments",
+        "Office Products",
+        "Outdoors",
+        "Personal Computers",
+        "Pet Supplies",
+        "Software",
+        "Sports",
+        "Sports Collectibles",
+        "Tools & Home Improvement",
+        "Toys & Games",
+        "Video, DVD & Blu-ray",
+        "Video Games",
+        "Watches",
+        "Other",
+        "All"
+      ]
     };
   }
   
   render() {
     return (
       <View style={{ display: "flex" }}>
+        <Picker
+          selectedValue={this.state.category}
+          style={{
+            padding: 5,
+            paddingVertical: 30,
+            width: "40%",
+            height: "auto",
+            marginLeft: "auto",
+            marginRight: "auto",
+            color: "#fff"
+          }}
+          onValueChange={(itemValue, itemIndex) =>
+            this.setState({category: itemValue})
+          }>
+          {this.state.categories.map(cat => {
+            return <Picker.Item label={cat} value={cat} key={cat} />
+          })}
+        </Picker>
         <TextInput
           style={{
             ...styles.textInput,
@@ -35,6 +90,25 @@ export default class AddItemForm extends Component {
           onFocus={() => {
             let flag = this.state.warn;
             flag = flag.replace("title", "");
+            this.setState({ warn: flag });
+          }}
+        />
+        <TextInput
+          style={{
+            ...styles.textInput,
+            marginVertical: this.props.smallTextButtonMargin + 3,
+            borderColor: this.state.warn.includes("desc") ? "#e74c3c" : "#065471"
+          }}
+          autoCapitalize="sentences"
+          placeholder="Item Description"
+          returnKeyType="next"
+          blurOnSubmit={false}
+          onChangeText={input => {
+            this.setState({ desc: input });
+          }}
+          onFocus={() => {
+            let flag = this.state.warn;
+            flag = flag.replace("desc", "");
             this.setState({ warn: flag });
           }}
         />

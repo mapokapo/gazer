@@ -94,6 +94,7 @@ export default class ItemScreen extends Component {
         </View>
         <Text style={{ color: "#fff", textAlign: "center" }}>Added on {this.state.item.added_on}</Text>
         <View style={{ display: "flex", flexDirection: "row", alignItems: "center" }}><Icon type="material" name="location-on" color="#E84B3D" /><Text style={{ color: "#fff" }}>{this.state.item.location}</Text></View>
+        <Text style={{ color: "#fff" }}>Category: {this.state.item.category}</Text>
         <View style={{ width: 120, height: 120, overflow: "hidden", marginTop: 15 }}>
           <QRCode
             value={this.state.item.QRCodeURL}
@@ -102,22 +103,7 @@ export default class ItemScreen extends Component {
             fgColor="#000"
           />
         </View>
-        <View style={{ display: "flex", alignSelf: "flex-start", justifyContent: "center", alignItems: "center", flex: 1, width: "100%" }}>
-          <Button color="#076c91" icon={
-            <Icon
-              type="material"
-              name="camera"
-              color="#fff"
-            />
-          } buttonStyle={{ borderRadius: (this.state.buttonWidth + this.state.buttonHeight) / 2, minWidth: 125, minHeight: 25 }}
-          onLayout={e => {
-            this.setState({ buttonWidth: e.nativeEvent.layout.width, buttonHeight: e.nativeEvent.layout.height })
-          }}
-          onPress={() => {
-            this.props.navigation.push("Home");
-          }}
-          />
-        </View>
+        <Text style={{ textAlign: "center", color: "#fff", fontFamily: "Montserrat-ExtraBold" }}>Description: {this.state.item.desc}</Text>
       </View>
     )
   }

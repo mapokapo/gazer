@@ -105,7 +105,9 @@ export default class AddItemScreen extends Component {
                 location: credentials.location,
                 searchQuery: credentials.title.toLowerCase(),
                 title: credentials.title,
-                itemID: itemID
+                itemID: itemID,
+                category: credentials.category,
+                desc: credentials.desc
               }).then(() => {
                 this.setState({ canBePressed: true }, () => {
                   this.props.navigation.navigate("Items");
@@ -126,7 +128,9 @@ export default class AddItemScreen extends Component {
               location: credentials.location,
               searchQuery: credentials.title.toLowerCase(),
               title: credentials.title,
-              itemID: itemID
+              itemID: itemID,
+              category: credentials.category,
+              desc: credentials.desc
             }).then(() => {
               this.setState({ canBePressed: true }, () => {
                 this.props.navigation.navigate("Items");
