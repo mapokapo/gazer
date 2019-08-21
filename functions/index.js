@@ -7,13 +7,14 @@ const { join, dirname } = require("path");
 const sharp = require("sharp");
 const fs = require("fs-extra");
 const UUID = require("uuid-v4");
+const _ = require("lodash");
 
 admin.initializeApp({
   credential: admin.credential.applicationDefault(),
   databaseURL: "https://uim3-8b4ac.firebaseio.com"
 });
 
-exports.imageToWebP = functions.storage.object().onFinalize(async object => {
+exports.imageToWebP = functions.region("europe-west1").storage.object().onFinalize(async object => {
   const bucket = admin.storage().bucket(object.bucket);
   const filePath = object.name;
   const fileName = filePath.split("/").pop();
@@ -93,7 +94,8 @@ exports.imageToWebP = functions.storage.object().onFinalize(async object => {
             location: data.location,
             searchQuery: data.searchQuery,
             title: data.title,
-            category: data.category
+            category: data.category,
+            desc: data.desc
           }).then(() => console.log("Item uploaded, converted, and saved in database successfully"));
         });
       }
@@ -106,7 +108,7 @@ exports.imageToWebP = functions.storage.object().onFinalize(async object => {
   });
 });
 
-exports.deleteUser = functions.https.onCall((data, context) => {
+exports.deleteUser = functions.region("europe-west1").https.onCall((data, context) => {
   if (!context.auth) return {status: "error", code: 401, message: "Not signed in"}
 
   return new Promise((resolve, reject) => {
@@ -126,7 +128,7 @@ exports.deleteUser = functions.https.onCall((data, context) => {
   })
 });
 
-exports.getUser = functions.https.onCall((data, context) => {
+exports.getUser = functions.region("europe-west1").https.onCall((data, context) => {
   if (!context.auth) return {status: "error", code: 401, message: "Not signed in"}
 
   return new Promise((resolve, reject) => {
@@ -135,7 +137,7 @@ exports.getUser = functions.https.onCall((data, context) => {
       // query user data
       admin.auth().getUser(data.uid)
         .then(userRecord => {
-          let obj = userRecord;
+          let obj = _.cloneDeep(userRecord);
           delete obj.passwordHash;
           resolve(obj.toJSON());
         })
