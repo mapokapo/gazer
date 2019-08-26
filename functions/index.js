@@ -139,6 +139,7 @@ exports.getUser = functions.region("europe-west1").https.onCall((data, context) 
         .then(userRecord => {
           let obj = _.cloneDeep(userRecord);
           delete obj.passwordHash;
+          console.log(_.isEqual(obj.toJSON(), JSON.parse(JSON.stringify(obj))));
           resolve(obj.toJSON());
         })
         .catch(error => {
