@@ -8,6 +8,7 @@ const sharp = require("sharp");
 const fs = require("fs-extra");
 const UUID = require("uuid-v4");
 const _ = require("lodash");
+const cors = require("cors")({ origin: true });
 
 admin.initializeApp({
   credential: admin.credential.applicationDefault(),
@@ -129,6 +130,7 @@ exports.deleteUser = functions.region("europe-west1").https.onCall((data, contex
 });
 
 exports.getUser = functions.region("europe-west1").https.onCall((data, context) => {
+  console.log("getUser triggered");
   if (!context.auth) return {status: "error", code: 401, message: "Not signed in"}
 
   return new Promise((resolve, reject) => {
@@ -137,10 +139,7 @@ exports.getUser = functions.region("europe-west1").https.onCall((data, context) 
       // query user data
       admin.auth().getUser(data.uid)
         .then(userRecord => {
-          let obj = _.cloneDeep(userRecord);
-          delete obj.passwordHash;
-          console.log(_.isEqual(obj.toJSON(), JSON.parse(JSON.stringify(obj))));
-          resolve(obj.toJSON());
+          resolve(userRecord.toJSON());
         })
         .catch(error => {
           console.error("Error fetching user data:", error)
