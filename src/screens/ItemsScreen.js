@@ -122,7 +122,7 @@ export default class ItemsScreen extends Component {
                       });
                   })
                   .catch(error => {
-                    alert(alert);
+                    alert(error);
                     reject(error);
                   });
               }

@@ -59,6 +59,5 @@ buck-out/
 /ios/Pods/
 
 # Custom
-android/app/google-services.json
-android/app/my-upload-key.keystore
-uim3-8b4ac-94eb82ac36af.json
+# android/app/google-services.json
+# android/app/my-upload-key.keystore

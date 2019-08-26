@@ -133,7 +133,9 @@ android {
     }
 
     dexOptions {
-        javaMaxHeapSize "4g"
+        incremental false
+	   javaMaxHeapSize "2048M" 
+	   preDexLibraries = false
     }
 
     defaultConfig {
