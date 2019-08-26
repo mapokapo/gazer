@@ -61,3 +61,4 @@ buck-out/
 # Custom
 # android/app/google-services.json
 # android/app/my-upload-key.keystore
+*.hprof

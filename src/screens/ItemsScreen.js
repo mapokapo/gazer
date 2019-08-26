@@ -172,6 +172,18 @@ export default class ItemsScreen extends Component {
             }}
           >
             <Text style={{ color: "#444" }}>Added by {item.added_by}</Text>
+            {item.emailVerified && (
+              <Icon
+                containerStyle={{ marginLeft: 4 }}
+                type="material"
+                name="verified-user"
+                color="#27ae60"
+                size={15}
+              />
+            )}
+            {item.admin && (
+              <Icon type="material" name="grade" color="#9b59b6" size={17} />
+            )}
           </View>
         </View>
       }
