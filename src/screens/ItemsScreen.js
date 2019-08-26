@@ -29,8 +29,7 @@ export default class ItemsScreen extends Component {
       loading: true,
       userData: "",
       user: "",
-      getUser: firebase.functions().httpsCallable("getUser"),
-      category: "",
+      category: "All",
       modalVisible: false,
       categories: [
         "Automotive & Powersports",
@@ -97,54 +96,25 @@ export default class ItemsScreen extends Component {
       firebase
         .database()
         .ref("items/")
-        .once("value", async snapshot => {
+        .once("value", snapshot => {
           if (!snapshot.val() || !this._isMounted) {
             this.setState({ loading: false, list: [] });
             return;
           }
           let itemArray = [];
           let itemObj = snapshot.val();
-          let fetch = () =>
-            new Promise((resolve, reject) => {
-              for (let key of Object.keys(itemObj)) {
-                this.state
-                  .getUser({ uid: itemObj[key].added_by_uid })
-                  .then(userRecord => {
-                    firebase
-                      .database()
-                      .ref("users/")
-                      .child(itemObj[key].added_by_uid)
-                      .once("value", ss => {
-                        if (!ss.val() || !this._isMounted) return;
-                        itemObj[key].admin = ss.val().admin;
-                        itemObj[key].emailVerified =
-                          userRecord.data.emailVerified;
-                      });
-                  })
-                  .catch(error => {
-                    alert(error);
-                    reject(error);
-                  });
-              }
-              resolve();
+          if (this._isMounted) {
+            itemArray = Object.values(itemObj);
+            if (this.state.category !== "All") {
+              let self = this;
+              itemArray = itemArray.filter(item => {
+                return item.category === self.state.category
+              })
+            }
+            this.setState({ list: itemArray, loading: false }, () => {
+              if (callback) callback(itemArray);
             });
-          fetch()
-            .then(() => {
-              if (this._isMounted) {
-                itemArray = Object.values(itemObj);
-                if (this.state.category !== "All") {
-                  let self = this;
-                  itemArray = itemArray.filter(item => {
-                    return item.category === self.state.category
-                  })
-                }
-                this.setState({ list: itemArray }, () => {
-                  if (callback) callback(itemArray);
-                  this.setState({ loading: false });
-                });
-              }
-            })
-            .catch(error => alert(error));
+          }
         });
     }
   };
@@ -172,18 +142,6 @@ export default class ItemsScreen extends Component {
             }}
           >
             <Text style={{ color: "#444" }}>Added by {item.added_by}</Text>
-            {item.emailVerified && (
-              <Icon
-                containerStyle={{ marginLeft: 4 }}
-                type="material"
-                name="verified-user"
-                color="#27ae60"
-                size={15}
-              />
-            )}
-            {item.admin && (
-              <Icon type="material" name="grade" color="#9b59b6" size={17} />
-            )}
           </View>
         </View>
       }

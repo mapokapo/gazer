@@ -15,7 +15,7 @@ export default class AddItemForm extends Component {
       location: "",
       desc: "",
       warn: "",
-      category: "All",
+      category: "Other",
       categories: [
         "Automotive & Powersports",
         "Baby Products",
@@ -47,8 +47,7 @@ export default class AddItemForm extends Component {
         "Video, DVD & Blu-ray",
         "Video Games",
         "Watches",
-        "Other",
-        "All"
+        "Other"
       ]
     };
   }

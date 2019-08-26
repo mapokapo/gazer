@@ -47,7 +47,7 @@ export default class ItemScreen extends Component {
                     { text: "Cancel", style: "cancel" },
                     { text: "Yes", onPress: () => {
                       firebase.database().ref("items/").child(item.itemID).remove().then(() => {
-                        firebase.storage().ref("itemImages/").child(item.itemID).delete().then(() => {
+                        firebase.storage().ref("itemImages/").child(item.itemID + ".webp").delete().then(() => {
                           navigation.navigate("Items");
                         }).catch(() => {
                           navigation.navigate("Items");

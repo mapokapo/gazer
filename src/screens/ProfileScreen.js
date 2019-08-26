@@ -97,7 +97,10 @@ export class ProfileScreen extends Component {
           iconColor: "#3498db",
           action: () => {
             firebase.auth().signOut().then(() => {
-              this.props.navigation.navigate("Login")
+              this.props.navigation.navigate("Login");
+              AsyncStorage.removeItem("profileLoad");
+              AsyncStorage.removeItem("adminLoad");
+              AsyncStorage.removeItem("itemsList");
             }).catch(error => {
               alert(error)
             });
@@ -129,9 +132,12 @@ export class ProfileScreen extends Component {
                   let user = firebase.auth().currentUser;
                   if (user)
                     user.delete().then(() => {
-                      firebase.storage().ref("profileImages/").child(user.uid).delete().then(() => {
+                      firebase.storage().ref("profileImages/").child(user.uid + ".webp").delete().then(() => {
                         firebase.database().ref("users/").child(user.uid).remove().then(() => {
                           this.props.navigation.navigate("Login");
+                          AsyncStorage.removeItem("profileLoad");
+                          AsyncStorage.removeItem("adminLoad");
+                          AsyncStorage.removeItem("itemsList");
                         });
                       }).catch(() => {
                         firebase.database().ref("users/").child(user.uid).remove().then(() => {

@@ -21,7 +21,6 @@ export default class UserPanelScreen extends Component {
       viewedUserData: this.props.navigation.getParam("userData"),
       user: "",
       userData: "",
-      getUser: firebase.functions().httpsCallable("getUser"),
       profileImageURL: this.props.navigation.getParam("userData").imageURL,
       image: null,
       displayName: this.props.navigation.getParam("userData").displayName,
@@ -42,7 +41,7 @@ export default class UserPanelScreen extends Component {
             { text: "Cancel", style: "cancel" },
             { text: "Yes", onPress: () => {
               deleteUser({uid: viewedUserData.userID}).then(() => {
-                firebase.storage().ref("profileImages/").child(viewedUserData.userID).delete().then(() => {
+                firebase.storage().ref("profileImages/").child(viewedUserData.userID + ".webp").delete().then(() => {
                   firebase.database().ref("users/").child(viewedUserData.userID).remove().then(() => {
                     firebase.database().ref("items/").once("value", snapshot => {
                       if (snapshot.val()) {

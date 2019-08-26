@@ -26,7 +26,7 @@ export default class SignInScreen extends Component {
     this.state = {
       logoSize: 165,
       smallTextButtonMargin: 3,
-      profileImageURL: "https://firebasestorage.googleapis.com/v0/b/uim3-8b4ac.appspot.com/o/profileImages%2Favatar.png?alt=media&token=2eb1bf6b-bedf-4223-8124-ea340a6a6fc5",
+      profileImageURL: "https://firebasestorage.googleapis.com/v0/b/uim3-8b4ac.appspot.com/o/profileImages%2Favatar.png?alt=media&token=6a2ec38e-3656-4ba7-ae55-62c1affce829",
       image: null
     };
   }
@@ -125,12 +125,6 @@ export default class SignInScreen extends Component {
       alert(error);
     });
   };
-
-  uploadImage = async (uri, name) => {
-    let ref = firebase.storage().ref("profileImages/").child(name);
-    let ext = uri.split(".")[1];
-    return ref.putFile(uri, { contentType: `image/${ext}`, name });
-  }
 
   componentDidMount() {
     this.keyboardDidShowListener = Keyboard.addListener(
