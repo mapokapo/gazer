@@ -129,22 +129,25 @@ exports.deleteUser = functions.region("europe-west1").https.onCall((data, contex
   })
 });
 
-exports.getUser = functions.region("europe-west1").https.onCall((data, context) => {
-  console.log("getUser triggered");
+exports.getUser = functions.https.onCall(async (data, context) => {
   if (!context.auth) return {status: "error", code: 401, message: "Not signed in"}
 
-  return new Promise((resolve, reject) => {
+  return await new Promise((resolve, reject) => {
     // verify user"s rights
     admin.database().ref("users/").child(context.auth.uid).once("value", snapshot => {
+      if (snapshot.val().admin === 1) {
       // query user data
-      admin.auth().getUser(data.uid)
-        .then(userRecord => {
-          resolve(userRecord.toJSON());
-        })
-        .catch(error => {
-          console.error("Error fetching user data:", error)
-          reject({status: "error", code: 500, error})
-        })
+        admin.auth().getUser(data.uid)
+          .then(userRecord => {
+            resolve(userRecord.toJSON());
+          })
+          .catch(error => {
+            console.error("Error fetching user data:", error)
+            reject({status: "error", code: 500, error})
+          })
+      } else {
+        reject({status: "error", code: 403, message: "Forbidden"})
+      }
     })
-  })
+  });
 })
