@@ -69,7 +69,7 @@ export default class AdminControlPanelScreen extends Component {
                 }
               }
             });
-          });
+          }).catch();
         }
         userArray = Object.values(userObj);
         this.setState({ userList: userArray, loading: false }, () => callback(userArray) );

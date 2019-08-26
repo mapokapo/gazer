@@ -47,7 +47,7 @@ export default class EmailVerificationScreen extends Component {
           />
         </View>
         <View style={{ flex: 1, display: "flex", justifyContent: "center", alignItems: "center" }}>
-          <Text style={{ color: "#fff" }}>A Verification Email has been sent to <Text style={{ color: "#3498db" }}>{this.state.data.email}</Text></Text>
+          <Text style={{ color: "#fff", textAlign: "center" }}>A Verification Email has been sent to <Text style={{ color: "#3498db" }}>{this.state.data.email}</Text></Text>
           <Text style={{ color: "#fff" }}>You will be redirected soon.</Text>
         </View>
       </View>
