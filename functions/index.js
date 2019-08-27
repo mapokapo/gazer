@@ -77,7 +77,8 @@ exports.imageToWebP = functions.region("europe-west1").storage.object().onFinali
             admin: data.admin,
             displayName: data.displayName,
             imageURL: itemDownloadURL,
-            joined: data.joined
+            joined: data.joined,
+            userID: data.userID
           }).then(() => console.log("Item uploaded, converted, and saved in database successfully"));
         });
       } else if (filePath.split("/")[0] === "itemImages") {
