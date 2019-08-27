@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { View, TouchableOpacity, Image, Keyboard, StyleSheet, TextInput, Picker } from 'react-native'
+import { View, TouchableOpacity, Image, Keyboard, StyleSheet, TextInput, Picker, ScrollView } from 'react-native'
 import { Button } from 'react-native-elements';
 import ImagePicker from "react-native-image-picker";
 import firebase from "react-native-firebase";
@@ -151,7 +151,7 @@ export default class ItemEditScreen extends Component {
 
   render() {
     return (
-      <View style={styles.mainWrapper}>
+      <ScrollView justifyContent="flex-end" style={styles.mainWrapper}>
         <View style={styles.logoContainer}>
         <TouchableOpacity onPress={() => {
           ImagePicker.showImagePicker(options, (response) => {
@@ -207,27 +207,6 @@ export default class ItemEditScreen extends Component {
           <TextInput
             style={{
               ...styles.textInput,
-              marginVertical: this.props.smallTextButtonMargin + 3,
-              borderColor: this.state.warn.includes("desc") ? "#e74c3c" : "#065471"
-            }}
-            autoCapitalize="sentences"
-            placeholder="Item Description"
-            returnKeyType="next"
-            blurOnSubmit={false}
-            value={this.state.desc}
-            ref={input => (this.descInput = input)}
-            onChangeText={input => {
-              this.setState({ desc: input });
-            }}
-            onFocus={() => {
-              let flag = this.state.warn;
-              flag = flag.replace("desc", "");
-              this.setState({ warn: flag });
-            }}
-          />
-          <TextInput
-            style={{
-              ...styles.textInput,
               marginVertical: this.state.smallTextButtonMargin + 3,
               borderColor: this.state.warn.includes("location") ? "#e74c3c" : "#065471"
             }}
@@ -249,7 +228,7 @@ export default class ItemEditScreen extends Component {
             this.updateItem();
           }} />
         </View>
-      </View>
+      </ScrollView>
     )
   }
 
@@ -320,6 +299,7 @@ const styles = StyleSheet.create({
   logoContainer: {
     alignItems: "center",
     flexGrow: 1,
-    justifyContent: "center"
+    justifyContent: "center",
+    marginBottom: 25
   }
 });

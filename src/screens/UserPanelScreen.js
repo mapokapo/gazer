@@ -48,9 +48,16 @@ export default class UserPanelScreen extends Component {
                         let delItems = () => new Promise((resolve, reject) => {
                           for (item of snapshot.val()) {
                             if (item.added_by_uid === viewedUserData.userID) {
-                              firebase.database().ref("items/").child(item.itemID).remove().catch(error => {
-                                alert(error);
-                                reject();
+                              firebase.storage().ref("itemImages/").child(item.itemID + ".webp").delete().then(() => {
+                                firebase.database().ref("items/").child(item.itemID).remove().catch(error => {
+                                  alert(error);
+                                  reject();
+                                });
+                              }).catch(() => {
+                                firebase.database().ref("items/").child(item.itemID).remove().catch(error => {
+                                  alert(error);
+                                  reject();
+                                });
                               });
                             }
                           }
@@ -67,11 +74,18 @@ export default class UserPanelScreen extends Component {
                     firebase.database().ref("items/").once("value", snapshot => {
                       if (snapshot.val()) {
                         let delItems = () => new Promise((resolve, reject) => {
-                          for (item of Object.values(snapshot.val())) {
+                          for (item of snapshot.val()) {
                             if (item.added_by_uid === viewedUserData.userID) {
-                              firebase.database().ref("items/").child(item.itemID).remove().catch(error => {
-                                alert(error);
-                                reject();
+                              firebase.storage().ref("itemImages/").child(item.itemID + ".webp").delete().then(() => {
+                                firebase.database().ref("items/").child(item.itemID).remove().catch(error => {
+                                  alert(error);
+                                  reject();
+                                });
+                              }).catch(() => {
+                                firebase.database().ref("items/").child(item.itemID).remove().catch(error => {
+                                  alert(error);
+                                  reject();
+                                });
                               });
                             }
                           }

@@ -122,7 +122,6 @@ export default class ItemsScreen extends Component {
                       });
                   })
                   .catch(error => {
-                    alert(error);
                     reject(error);
                   });
               }
@@ -138,13 +137,26 @@ export default class ItemsScreen extends Component {
                     return item.category === self.state.category
                   })
                 }
+                this.setState({ list: itemArray, loading: false }, () => {
+                  if (callback) callback(itemArray);
+                });
+              }
+            })
+            .catch(() => {
+              if (this._isMounted) {
+                itemArray = Object.values(itemObj);
+                if (this.state.category !== "All") {
+                  let self = this;
+                  itemArray = itemArray.filter(item => {
+                    return item.category === self.state.category
+                  })
+                }
                 this.setState({ list: itemArray }, () => {
                   if (callback) callback(itemArray);
                   this.setState({ loading: false });
                 });
               }
-            })
-            .catch(error => alert(error));
+            });
         });
     }
   };
@@ -181,7 +193,7 @@ export default class ItemsScreen extends Component {
                 size={15}
               />
             )}
-            {item.admin && (
+            {item.admin === 1 && (
               <Icon type="material" name="grade" color="#9b59b6" size={17} />
             )}
           </View>

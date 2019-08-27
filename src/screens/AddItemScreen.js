@@ -5,7 +5,8 @@ import {
   StyleSheet,
   Keyboard,
   TouchableOpacity,
-  StatusBar } from 'react-native'
+  StatusBar,
+  ScrollView } from 'react-native'
 import firebase from "react-native-firebase";
 import ImagePicker from 'react-native-image-picker';
 import uuid from "uuid/v4";
@@ -42,7 +43,7 @@ export default class AddItemScreen extends Component {
 
   render() {
     return (
-      <View style={styles.mainWrapper}>
+      <ScrollView justifyContent="flex-end" style={styles.mainWrapper}>
         <StatusBar backgroundColor="#065471" barStyle="light-content" />
         <View style={styles.logoContainer}>
           <TouchableOpacity onPress={() => {
@@ -67,7 +68,7 @@ export default class AddItemScreen extends Component {
             }}
           />
         </View>
-      </View>
+      </ScrollView>
     )
   }
 
@@ -192,6 +193,7 @@ const styles = StyleSheet.create({
   logoContainer: {
     alignItems: "center",
     flexGrow: 1,
-    justifyContent: "center"
+    justifyContent: "center",
+    marginBottom: 25
   }
 });

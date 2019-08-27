@@ -134,6 +134,31 @@ export class ProfileScreen extends Component {
                     user.delete().then(() => {
                       firebase.storage().ref("profileImages/").child(user.uid + ".webp").delete().then(() => {
                         firebase.database().ref("users/").child(user.uid).remove().then(() => {
+                          firebase.database().ref("items/").once("value", snapshot => {
+                            if (snapshot.val()) {
+                              let delItems = () => new Promise((resolve, reject) => {
+                                for (item of snapshot.val()) {
+                                  if (item.added_by_uid === viewedUserData.userID) {
+                                    firebase.storage().ref("itemImages/").child(item.itemID + ".webp").delete().then(() => {
+                                      firebase.database().ref("items/").child(item.itemID).remove().catch(error => {
+                                        alert(error);
+                                        reject();
+                                      });
+                                    }).catch(() => {
+                                      firebase.database().ref("items/").child(item.itemID).remove().catch(error => {
+                                        alert(error);
+                                        reject();
+                                      });
+                                    });
+                                  }
+                                }
+                                resolve();
+                              });
+                              delItems().then(() => {
+                                this.props.navigation.navigate("Login");
+                              });
+                            }
+                          });
                           this.props.navigation.navigate("Login");
                           AsyncStorage.removeItem("profileLoad");
                           AsyncStorage.removeItem("adminLoad");
@@ -141,7 +166,35 @@ export class ProfileScreen extends Component {
                         });
                       }).catch(() => {
                         firebase.database().ref("users/").child(user.uid).remove().then(() => {
+                          firebase.database().ref("items/").once("value", snapshot => {
+                            if (snapshot.val()) {
+                              let delItems = () => new Promise((resolve, reject) => {
+                                for (item of snapshot.val()) {
+                                  if (item.added_by_uid === viewedUserData.userID) {
+                                    firebase.storage().ref("itemImages/").child(item.itemID + ".webp").delete().then(() => {
+                                      firebase.database().ref("items/").child(item.itemID).remove().catch(error => {
+                                        alert(error);
+                                        reject();
+                                      });
+                                    }).catch(() => {
+                                      firebase.database().ref("items/").child(item.itemID).remove().catch(error => {
+                                        alert(error);
+                                        reject();
+                                      });
+                                    });
+                                  }
+                                }
+                                resolve();
+                              });
+                              delItems().then(() => {
+                                this.props.navigation.navigate("Login");
+                              });
+                            }
+                          });
                           this.props.navigation.navigate("Login");
+                          AsyncStorage.removeItem("profileLoad");
+                          AsyncStorage.removeItem("adminLoad");
+                          AsyncStorage.removeItem("itemsList");
                         });
                       });
                     }).catch(error => {

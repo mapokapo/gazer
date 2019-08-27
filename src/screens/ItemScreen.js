@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Text, View, Image, Alert, StatusBar } from 'react-native';
+import { Text, View, Image, Alert, StatusBar, ScrollView } from 'react-native';
 import { Icon, Button } from "react-native-elements";
 import firebase from 'react-native-firebase';
 import QRCode from 'react-native-qrcode';
@@ -83,19 +83,20 @@ export default class ItemScreen extends Component {
 
   render() {
     return (
-      <View style={{ display: "flex", alignItems: "center", backgroundColor: "#065471", flex: 1, padding: 5 }}>
+      <ScrollView alignItems="center" style={{ backgroundColor: "#065471", flex: 1, padding: 5 }}>
         <StatusBar backgroundColor="#065471" barStyle="light-content" />
-        <View>
+        <View style={{ marginVertical: 8 }}>
           <Image source={{ uri: this.state.item.imageURL }} style={{ width: 200, height: 200, borderRadius: 200 / 1, backgroundColor: "#065471" }} />
         </View>
-        <View>
+        <View style={{ marginVertical: 5 }}>
           <Text style={{ fontSize: 24, fontWeight: "bold", color: "#fff", textAlign: "center" }}>{this.state.item.title}</Text>
-          <Text style={{ fontSize: 20, color: "#fff" }}>Added by {this.state.item.added_by}</Text>
+          <Text style={{ fontSize: 20, color: "#fff", textAlign: "center", marginVertical: 2 }}>Added by {this.state.item.added_by}</Text>
         </View>
         <Text style={{ color: "#fff", textAlign: "center" }}>Added on {this.state.item.added_on}</Text>
-        <View style={{ display: "flex", flexDirection: "row", alignItems: "center" }}><Icon type="material" name="location-on" color="#E84B3D" /><Text style={{ color: "#fff" }}>{this.state.item.location}</Text></View>
-        <Text style={{ color: "#fff" }}>Category: {this.state.item.category}</Text>
-        <View style={{ width: 120, height: 120, overflow: "hidden", marginTop: 15 }}>
+        <View style={{ display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "center" }}><Icon type="material" name="location-on" color="#E84B3D" /><Text style={{ textAlign: "center", color: "#fff" }}>{this.state.item.location}</Text></View>
+        <Text style={{ color: "#fff", textAlign: "center" }}>Category: {this.state.item.category}</Text>
+        <Text style={{ textAlign: "center", color: "#fff", fontFamily: "Montserrat-ExtraBold", marginVertical: 5 }}>Description: {this.state.item.desc}</Text>
+        <View style={{ width: 120, height: 120, overflow: "hidden", marginVertical: 15, marginLeft: "auto", marginRight: "auto" }}>
           <QRCode
             value={this.state.item.QRCodeURL}
             size={343}
@@ -103,8 +104,7 @@ export default class ItemScreen extends Component {
             fgColor="#000"
           />
         </View>
-        <Text style={{ textAlign: "center", color: "#fff", fontFamily: "Montserrat-ExtraBold" }}>Description: {this.state.item.desc}</Text>
-      </View>
+      </ScrollView>
     )
   }
 }
